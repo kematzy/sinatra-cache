@@ -50,4 +50,5 @@ Expiring old pages (ie: after POST or PUT events)
 
 h3. Credits
 
-Inspired by code from Rails &amp; Merb
+Inspired by code from "Rails":http://rubyonrails.com/ &amp; "Merb":http://merbivore.com/
+and "sinatra-mailer":http://github.com/foca/sinatra-mailer/tree/master
