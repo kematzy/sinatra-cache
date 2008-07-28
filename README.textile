@@ -1,0 +1,53 @@
+h2. Sinatra::Cache
+
+Adds simple Page Caching to "Sinatra":http://sinatrarb.com/
+
+
+h3. TODOs
+
+*NB!* Very unfinished work, so use with care.
+
+ # Write tests
+ # Add logging output
+ # Move the configurations
+ 
+ 
+ 
+h3. Configuration
+
+Example:
+
+  <pre><code>
+  # toggle for cache functionality
+  set :cache_enabled, true
+  # default extension for caching
+  set :cache_page_extension, '.html'
+  # set Cache dir to Root of Public.
+  set :cache_dir, 'system/cache/'
+  </code></pre>
+    
+
+h3. Usage
+
+Basic Page Caching into static HTML files
+
+<pre><code>
+  get '/contact' do
+    cache( erb( :contact, :layout => :layout))
+  end
+</code></pre>
+
+Expiring old pages (ie: after POST or PUT events) 
+
+<pre><code>
+  # not very good example
+  post '/contact' do
+    expire_cache( '/contact')
+  end
+</code></pre>
+
+
+
+h3. Credits
+
+Inspired by code from Rails &amp; Merb
