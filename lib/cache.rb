@@ -7,17 +7,11 @@ module Sinatra
   
   # Page Caching module
   # 
-  # <b>Usage:</b>
-  #    >> cache( erb(:contact, :layout => :layout))
-  #      =>  returns the HTML output written to 
-  #
   module Cache
     
     
-    # TODO: make the logging stuff actually work ;-)
-    # @log = Logger.new(STDERR)
-    # @log.level = Logger::DEBUG
-    # attr :log
+    # TODO: make the logging stuff work better
+    $LOG = Logger.new(STDERR)
     
     # TODO: move these config settings somewhere else, or improve upon them
     # toggle for cache functionality
@@ -40,7 +34,8 @@ module Sinatra
       unless content.nil?
         path = cache_page_path(request.path_info)
         FileUtils.makedirs(File.dirname(path))
-        open(path, 'wb+') { |f| f << content } 
+        open(path, 'wb+') { |f| f << content }
+        $LOG.info( "Cached Page: [#{path}]") 
         content
       end
     end
@@ -61,16 +56,29 @@ module Sinatra
       path = (path.nil?) ? cache_page_path(request.path_info) : cache_page_path(path)
       if File.exist?(path)
         File.delete(path)
-        #log.info( "Expired Page deleted at: [#{path}]")
+        $LOG.info( "Expired Page deleted at: [#{path}]")
       else
-        #log.info( "No Expired Page was found at the path: [#{path}]")
+        $LOG.info( "No Expired Page was found at the path: [#{path}]")
       end
+    end
+    
+    # Prints a basic HTML comment with a timestamp in it.
+    # 
+    # *NB!* IE6 does NOT like this to be the first line of a HTML document, so output
+    # inside the <head> tag. Many hours wasted on that lesson ;-)
+    # 
+    # <b>Usage:</b>
+    #    >> <%= page_cached_timestamp %>
+    #      => <!--  page cached: 2008-08-01 12:00:00 -->
+    #
+    def page_cached_timestamp
+      "<!--  page cached: #{Time.now.strftime("%Y-%d-%m %H:%M:%S")} -->"
     end
     
     private
       
       def cache_file_name(path)
-        name = (path.empty? || path == "/") ? "index" : Rack::Utils.unescape(path.chomp('/'))
+        name = (path.empty? || path == "/") ? "index" : Rack::Utils.unescape(path.sub(/^(\/)/,'').chomp('/'))
         name << Sinatra.options.cache_page_extension unless (name.split('/').last || name).include? '.'
         return name
       end
