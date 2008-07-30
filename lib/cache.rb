@@ -72,7 +72,7 @@ module Sinatra
     #      => <!--  page cached: 2008-08-01 12:00:00 -->
     #
     def page_cached_timestamp
-      "<!--  page cached: #{Time.now.strftime("%Y-%d-%m %H:%M:%S")} -->"
+      "<!--  page cached: #{Time.now.strftime("%Y-%d-%m %H:%M:%S")} -->" if Sinatra.options.cache_enabled
     end
     
     private
