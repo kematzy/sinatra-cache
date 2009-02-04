@@ -3,24 +3,32 @@ require 'fileutils'
 require 'logger'
 
 
-module Sinatra
+
+module Sinatra 
   
-  # Page Caching module
-  # 
-  module Cache
-    
-    
-    # TODO: move the logging stuff to a better location. Where? Set the default level ?
-    $LOG = Logger.new(STDERR)
-    # $LOG.level = Logger::INFO
-    
-    # TODO: move these config settings somewhere else, or improve upon them
+  class Default < Base 
+    #  NOTE:: Is this the correct way to do this ?? 
     # toggle for cache functionality
     set :cache_enabled, true
     # default extension for caching
     set :cache_page_extension, '.html'
     # set Cache dir to Root of Public.
     set :cache_dir, ''  # set to empty, since the ideal 'system/cache/' does not work with Passenger & mod_rewrite :(
+    # 
+    set :cache_logging, true
+    #
+    set :cache_logging_level, :debug
+    
+  end #/class Default < Base
+  
+  # Page Caching module
+  # 
+  module Cache
+    
+    VERSION = 'Sinatra::Cache v0.0.2'
+    
+    def self.version; VERSION; end;
+    
     
     # Caches the given URI to a html file in /public
     # 
@@ -36,7 +44,7 @@ module Sinatra
         path = cache_page_path(request.path_info,options)
         FileUtils.makedirs(File.dirname(path))
         open(path, 'wb+') { |f| f << content }
-        $LOG.info( "Cached Page: [#{path}]") 
+        log.info( "Cached Page: [#{path}]") 
         content
       end
     end
@@ -58,9 +66,9 @@ module Sinatra
       path = (path.nil?) ? cache_page_path(request.path_info) : cache_page_path(path)
       if File.exist?(path)
         File.delete(path)
-        $LOG.info( "Expired Page deleted at: [#{path}]")
+        log.info( "Expired Page deleted at: [#{path}]")
       else
-        $LOG.info( "No Expired Page was found at the path: [#{path}]")
+        log.info( "No Expired Page was found at the path: [#{path}]")
       end
     end
     
@@ -97,10 +105,15 @@ module Sinatra
       end
       
       
+      def log(msg,scope=:info)
+        require 'logger'
+        logger ||= Logger.new(STDERR)
+        logger.level = Logger::WARN
+        # $LOG.level = Logger::INFO
+      end
+      
   end #/module Cache
   
-  class EventContext
-    include Cache
-  end
+  Sinatra::Base.register Sinatra::Cache
   
 end #/module Sinatra
