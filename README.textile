@@ -1,29 +1,62 @@
 h1. Sinatra::Cache
 
-Adds a very simple Page Caching functionality to "Sinatra":http://www.sinatrarb.com/
+Adds a very *simple* Page Caching functionality to "Sinatra":http://www.sinatrarb.com/
 
-<div style="background: #eee; padding: 10px 5px; border: 1px dashed #999;">
+<div style="background: #EED367; padding: 10px 5px; border: 1px solid #D7C36C; text-align: center;">
 *NB!* Unfinished work, so use with care.
+<br>
+
+If you find it lacking or badly coded, please feel free to fork and improve. I'll be very happy :)
 </div>
+
 
 h3. TODOs
 
 * Improve the logging output to the standard Sinatra output (if we are having :logging enabled )
+* Add fragment and action (?) caching...
+* Enable the options functionality for the <tt>:cache</tt> & <tt>:cache_expire</tt> methods, so that they can take custom extensions and more
 
- 
- 
+
 h3. Configuration
 
-Example:
+*Example 1:*
+
+Sinatra 'classic' app.
 
   <pre><code>
+  <snip....>
+  require 'sinatra/cache'
+  
   # toggle for the cache functionality.
   set :cache_enabled, true
   # sets the default extension for cached files
   set :cache_page_extension, '.html'
   # sets the Cache dir to the root of the /public directory.
   set :cache_dir, '' 
+  ...
   </code></pre>
+
+*Example 2:*
+
+Sinatra 'sub-classed' app.
+    
+<pre><code>
+  <snip....>
+  require 'sinatra/cache'
+
+  class MyApp < Sinatra::Base
+  
+    register Sinatra::Cache
+
+    # toggle for the cache functionality.
+    set :cache_enabled, true
+    # sets the default extension for cached files
+    set :cache_page_extension, '.html'
+    # sets the Cache dir to the root of the /public directory.
+    set :cache_dir, '' 
+  
+    <snip....>
+</code></pre>
     
 
 h3. Usage
@@ -32,7 +65,8 @@ Basic Page Caching into static HTML files
 
 <pre><code>
   get '/contact' do
-    cache( erb( :contact ))
+    # NB!  options is currently not working
+    cache( erb( :contact ), :options => 'go here' )
   end
 </code></pre>
 
@@ -41,11 +75,25 @@ Expiring old pages (ie: after POST or PUT events)
 <pre><code>
   # not very good example
   post '/contact' do
-    cache_expire( '/contact')
+    cache_expire( '/contact', options )
   end
 </code></pre>
 
 See the "test":test/ and "test/fixtures":test/fixtures/ directories for more examples.
+
+
+h3. Default Options
+
+* <tt>:cache_enabled</tt> => toggle for the cache functionality. Default is: <tt>true</tt>
+* <tt>:cache_page_extension</tt> => sets the default extension for cached files. Default is: <tt>.html</tt>
+* <tt>:cache_dir</tt> => sets cache directory where cached files are stored. Default is: ''(empty) == root of /public.<br>
+    set to empty, since the ideal 'system/cache/' does not currently work with Passenger & mod_rewrite :(
+* <tt>:cache_logging</tt> => toggle for logging the cache calls. Default is: <tt>true</tt>
+* <tt>:cache_logging_level</tt> => sets the level of the cache logger. Default is: <tt>:info</tt>.<br>
+    Options:(unused atm) [:info, :warn, :debug]
+
+
+<hr>
 
 h3. Credits
 
