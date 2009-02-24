@@ -1,3 +1,4 @@
+Test Suite for [Sinatra::Cache v0.2.0] produced on [2009-25-02 at 00:37]
 
 == Sinatra::Cache
 === ClassMethods
@@ -26,19 +27,36 @@
 * should handle sub level URIs and return the full path to the URI
 ===== :log method
 * MISSING TESTS =>
+==== Public
+===== :cache method
+====== when using default options
+* is tested below in the Page Caching section
+====== when using customized options
+* is tested below in the Page Caching section
 === configuration methods
 ==== when using default options
 * the :cache_enabled option should be correct (true)
 * the :cache_page_extension option should be correct (.html)
 * the :cache_dir option should be correct ('') 
 * the :cache_logging option should be correct (true)
-* the :cache_logging_level option should be correct (:debug)
+* the :cache_logging_level option should be correct (:info)
 ==== when using customized options
 * the :cache_enabled option should be correct (false)
 * the :cache_page_extension option should be correct (.cache.html)
 * the :cache_dir option should be correct ('system/cache') 
 * the :cache_logging option should be correct (true)
 * the :cache_logging_level option should be correct (:info)
+=== Page Caching
+==== when using default options
+* should NOT cache the un-cached index page
+* should cache the /cache page
+* should expire the /cache page
+==== when using customized options
+* should NOT cache the un-cached index page
+* should NOT cache the /cache page since :cache_enabled => false
+===== and setting cache_enabled => true
+* should cache the /cache page
+* should expire the /cache page
 === Sinatra::Base
 ==== should respond to
 * the :cache_dir method
@@ -74,4 +92,4 @@
 * the :cache_page_extension= method
 * the :cache_page_extension? method
 
-55 specifications (57 requirements), 0 failures
+64 specifications (84 requirements), 0 failures

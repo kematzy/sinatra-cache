@@ -1,9 +1,11 @@
 require File.dirname(__FILE__) + '/helper'
-require '../lib/sinatra/cache'
+require "#{File.dirname(File.dirname(File.expand_path(__FILE__)))}/lib/sinatra/cache"
 
 class Sinatra::Base
   # include Sinatra::Cache
 end #/class Sinatra::Base
+
+puts "Test Suite for [#{Sinatra::Cache.version}] produced on [#{ Time.now.strftime("%Y-%d-%m at %H:%M") }]"
 
 describe "Sinatra::Cache" do 
   
@@ -12,8 +14,8 @@ describe "Sinatra::Cache" do
     default_app = mock_app do 
       register Sinatra::Cache
       
-      set :public, "#{File.dirname(__FILE__)}/fixtures/public"
-      set :views, "#{File.dirname(__FILE__)}/fixtures/views"
+      set :public, "#{File.dirname(File.expand_path(__FILE__))}/fixtures/public"
+      set :views, "#{File.dirname(File.expand_path(__FILE__))}/fixtures/views"
       
       get '/' do
         erb(:index)
@@ -22,6 +24,10 @@ describe "Sinatra::Cache" do
       get '/cache' do
         # "Hello World from Sinatra Version=[#{Sinatra::VERSION}]"
         cache("Hello World from Sinatra Version=[#{Sinatra::VERSION}]")
+      end
+      # YES, I know this is NOT ideal, but it's only test ;-)
+      get '/cache_expire' do
+        cache_expire("/cache")
       end
       
     end
@@ -45,6 +51,11 @@ describe "Sinatra::Cache" do
       get '/cache' do
         cache("Hello World from Sinatra Version=[#{Sinatra::VERSION}]")
       end
+      # YES, I know this is NOT ideal, but it's only test ;-)
+      get '/cache_expire' do
+        cache_expire("/cache")
+      end
+      
     end
     
     @default_app = default_app.new
@@ -178,6 +189,31 @@ describe "Sinatra::Cache" do
       end #/:log method
       
     end #/Private
+    
+    describe "Public" do 
+      
+      describe ":cache method" do 
+        
+        describe "when using default options" do 
+          
+          it "is tested below in the Page Caching section" do 
+            assert true
+          end
+          
+        end #/when using default options
+        
+        describe "when using customized options" do 
+          
+          it "is tested below in the Page Caching section" do 
+            assert true
+          end
+          
+        end #/when using customized options
+        
+      end #/:cache method
+      
+    end #/Public
+    
   end #/Instance Methods
   
   
@@ -201,8 +237,8 @@ describe "Sinatra::Cache" do
         assert_equal(true, @default_app.options.cache_logging)
       end
       
-      it "the :cache_logging_level option should be correct (:debug)" do 
-        assert_equal(:debug, @default_app.options.cache_logging_level)
+      it "the :cache_logging_level option should be correct (:info)" do 
+        assert_equal(:info, @default_app.options.cache_logging_level)
       end
       
     end #/default options
@@ -235,26 +271,116 @@ describe "Sinatra::Cache" do
   
   
   describe "Page Caching" do 
-    
-    it "should description" do 
-      request = Rack::MockRequest.new(@default_app)
-      response = request.get('/')
-      
-      # assert_equal '', response.inspect
-      # assert_equal '', response.body
+    after(:each) do
+      # FileUtils.rm_r(Dir["#{public_fixtures_path}/*"])
     end
     
     describe "when using default options" do 
       
-      # it "should create a cached page with the right name in the correct location" do 
-      #   request = Rack::MockRequest.new(@default_app)
-      #   response = request.get('/cache')
-      #   # assert response #inspect
-      #   # assert_equal '', response.body
-      #   
-      # end
+      it "should NOT cache the un-cached index page" do 
+        request = Rack::MockRequest.new(@default_app)
+        response = request.get('/')
+        assert response
+        assert_equal '<h1>HOME</h1>', response.body
+        assert_equal(false, test(?f, "#{public_fixtures_path}/index.html"))
+      end
+      
+      it "should cache the /cache page" do 
+        request = Rack::MockRequest.new(@default_app)
+        response = request.get('/cache')
+        assert response
+        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, response.body)
+        assert(test(?f, "#{public_fixtures_path}/cache.html"))
+        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, File.read("#{public_fixtures_path}/cache.html"))
+      end
+      
+      it "should expire the /cache page" do 
+        assert(test(?f, "#{public_fixtures_path}/cache.html"))
+        request = Rack::MockRequest.new(@default_app)
+        response = request.get('/cache_expire')
+        assert response
+        #  TODO:: this is dodgy stuff, rework 
+        assert_not_equal('', response.body)
+        assert_equal(false, test(?f, "#{public_fixtures_path}/cache.html"))
+      end
       
     end #/when using default options
+    
+    describe "when using customized options" do 
+      
+      it "should NOT cache the un-cached index page" do 
+        request = Rack::MockRequest.new(@custom_app)
+        response = request.get('/')
+        assert response
+        assert_equal '<h1>HOME</h1>', response.body
+        assert_equal(false, test(?f, "#{public_fixtures_path}/index.html"))
+      end
+      
+      it "should NOT cache the /cache page since :cache_enabled => false" do 
+        request = Rack::MockRequest.new(@custom_app)
+        response = request.get('/cache')
+        assert response
+        assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d\.\d\]/, response.body)
+        assert_equal(false, test(?f, "#{public_fixtures_path}/cache.cache.html"))
+      end
+      
+      describe "and setting cache_enabled => true" do 
+        
+        before(:each) do
+          custom_enabled_app = mock_app do 
+            register Sinatra::Cache
+            
+            set :public, "#{File.dirname(File.expand_path(__FILE__))}/fixtures/public"
+            set :views, "#{File.dirname(File.expand_path(__FILE__))}/fixtures/views"
+            
+            set :cache_enabled, true
+            set :cache_page_extension, '.cache.html'
+            set :cache_dir, 'system/cache'
+            set :cache_logging, true
+            set :cache_logging_level, :info
+            
+            get '/' do
+              erb :index
+            end
+            
+            get '/cache' do
+              cache("Hello World from Sinatra Version=[#{Sinatra::VERSION}]")
+            end
+            
+            # YES, I know this is NOT ideal, but it's only test ;-)
+            get '/cache_expire' do
+              cache_expire("/cache")
+            end
+            
+          end
+          
+          @custom_enabled_app = custom_enabled_app.new
+        end
+        
+        it "should cache the /cache page" do 
+          request = Rack::MockRequest.new(@custom_enabled_app)
+          response = request.get('/cache')
+          assert response
+          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, response.body)
+          assert(test(?f, "#{public_fixtures_path}/system/cache/cache.cache.html"))
+          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, File.read("#{public_fixtures_path}/system/cache/cache.cache.html"))
+        end
+        
+        it "should expire the /cache page" do 
+          assert(test(?f, "#{public_fixtures_path}/system/cache/cache.cache.html"))
+          request = Rack::MockRequest.new(@custom_enabled_app)
+          response = request.get('/cache_expire')
+          assert response
+          #  TODO:: this is dodgy stuff, rework 
+          assert_not_equal('', response.body)
+          assert_equal(false, test(?f, "#{public_fixtures_path}/system/cache/cache.cache.html"))
+        end
+        
+      end #/and setting cache_enabled => true
+      
+    end #/when using customized options
+    
+    
   end #/Page Caching
   
   
