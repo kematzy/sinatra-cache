@@ -2,6 +2,8 @@
 .DS_Store
 *.tmproj
 ## 
+# ignore the gem dir
+pkg/*
 vendor/*
 fixtures/public/*
 fixtures/cache/*
