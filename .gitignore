@@ -1,1 +1,7 @@
+## OS SPECIFIC
 .DS_Store
+*.tmproj
+## 
+vendor/*
+fixtures/public/*
+fixtures/cache/*

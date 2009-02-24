@@ -1,13 +1,13 @@
 h2. Sinatra::Cache
 
-Adds simple Page Caching to "Sinatra":http://sinatrarb.com/
+Adds simple Page Caching to "Sinatra":http://www.sinatrarb.com/
 
 
 h3. TODOs
 
 *NB!* Very unfinished work, so use with care.
 
- # Write tests
+ # Make it work with Sub-classed Sinatra Apps => [MyApp < Sinatra::Base or Default] (problems with configs)
  # Add logging output
  # Move the configurations
  
@@ -42,7 +42,7 @@ Expiring old pages (ie: after POST or PUT events)
 <pre><code>
   # not very good example
   post '/contact' do
-    expire_cache( '/contact')
+    cache_expire( '/contact')
   end
 </code></pre>
 
