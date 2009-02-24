@@ -1,16 +1,15 @@
-h2. Sinatra::Cache
+h1. Sinatra::Cache
 
-Adds simple Page Caching to "Sinatra":http://www.sinatrarb.com/
+Adds a very simple Page Caching functionality to "Sinatra":http://www.sinatrarb.com/
 
+<div style="background: #eee; padding: 10px 5px; border: 1px dashed #999;">
+*NB!* Unfinished work, so use with care.
+</div>
 
 h3. TODOs
 
-*NB!* Very unfinished work, so use with care.
+* Improve the logging output to the standard Sinatra output (if we are having :logging enabled )
 
- # Make it work with Sub-classed Sinatra Apps => [MyApp < Sinatra::Base or Default] (problems with configs)
- # Add logging output
- # Move the configurations
- 
  
  
 h3. Configuration
@@ -18,12 +17,12 @@ h3. Configuration
 Example:
 
   <pre><code>
-  # toggle for cache functionality
+  # toggle for the cache functionality.
   set :cache_enabled, true
-  # default extension for caching
+  # sets the default extension for cached files
   set :cache_page_extension, '.html'
-  # set Cache dir to Root of Public.
-  set :cache_dir, 'system/cache/'
+  # sets the Cache dir to the root of the /public directory.
+  set :cache_dir, '' 
   </code></pre>
     
 
@@ -33,7 +32,7 @@ Basic Page Caching into static HTML files
 
 <pre><code>
   get '/contact' do
-    cache( erb( :contact, :layout => :layout))
+    cache( erb( :contact ))
   end
 </code></pre>
 
@@ -46,9 +45,12 @@ Expiring old pages (ie: after POST or PUT events)
   end
 </code></pre>
 
-
+See the "test":test/ and "test/fixtures":test/fixtures/ directories for more examples.
 
 h3. Credits
 
+A big *Thank You!* goes to "*rtomayko*":http://github.com/rtomayko/, "*blakemizerany*":http://github.com/blakemizerany/ and others working on the Sinatra framework.
+
 Inspired by code from "Rails":http://rubyonrails.com/ &amp; "Merb":http://merbivore.com/
 and "sinatra-mailer":http://github.com/foca/sinatra-mailer/tree/master
+
