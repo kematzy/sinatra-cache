@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/helper'
-require 'sinatra/cache'
+require '../lib/sinatra/cache'
 
 class Sinatra::Base
   # include Sinatra::Cache
@@ -9,7 +9,7 @@ describe "Sinatra::Cache" do
   
   before(:each) do
     
-    @default_app = mock_app do 
+    default_app = mock_app do 
       register Sinatra::Cache
       
       set :public, "#{File.dirname(__FILE__)}/fixtures/public"
@@ -26,7 +26,7 @@ describe "Sinatra::Cache" do
       
     end
     
-    @custom_app = mock_app do
+    custom_app = mock_app do
       register Sinatra::Cache
       
       set :public, "#{File.dirname(__FILE__)}/fixtures/public"
@@ -47,6 +47,8 @@ describe "Sinatra::Cache" do
       end
     end
     
+    @default_app = default_app.new
+    @custom_app = custom_app.new
   end
   
   describe "ClassMethods" do 
@@ -75,7 +77,8 @@ describe "Sinatra::Cache" do
       
       describe ":cache_file_name method" do 
         
-        class Sinatra::Base
+        # temporary monkeypatch to enable testing
+        module Sinatra::Cache::Helpers 
           public :cache_file_name
         end
         
@@ -120,8 +123,9 @@ describe "Sinatra::Cache" do
       end #/:cache_page_path method
       
       describe ":cache_page_path method" do 
-
-        class Sinatra::Base
+        
+        # temporary monkeypatch to enable testing
+        module Sinatra::Cache::Helpers 
           public :cache_page_path
         end
         
@@ -165,80 +169,67 @@ describe "Sinatra::Cache" do
         
       end #/:cache_page_path method
       
+      describe ":log method" do 
+        
+        it "MISSING TESTS =>" do 
+          assert(true)
+        end
+        
+      end #/:log method
+      
     end #/Private
   end #/Instance Methods
   
   
   describe "configuration methods" do 
     
-    # before(:each) do
-    #   @default_app = mock_app { 
-    #     register Sinatra::Cache
-    #     
-    #     get '/' do
-    #       'foo'
-    #     end
-    #      
-    #   }
-    #   
-    #   @custom_app = mock_app { 
-    #     register Sinatra::Cache
-    #     
-    #     set :cache_enabled, false
-    #     set :cache_page_extension, '.cache.html'
-    #     set :cache_dir, 'system/cache'
-    #     set :cache_logging, false
-    #     set :cache_logging_level, :info
-    #   }
-    # end
-    
     describe "when using default options" do 
       
       it "the :cache_enabled option should be correct (true)" do 
-        assert_equal(true, @default_app.cache_enabled)
+        assert_equal(true, @default_app.options.cache_enabled)
       end
       
       it "the :cache_page_extension option should be correct (.html)" do 
-        assert_equal('.html', @default_app.cache_page_extension)
+        assert_equal('.html', @default_app.options.cache_page_extension)
       end
       
       it "the :cache_dir option should be correct ('') " do 
-        assert_equal('', @default_app.cache_dir)
+        assert_equal('', @default_app.options.cache_dir)
       end
       
       it "the :cache_logging option should be correct (true)" do 
-        assert_equal(true, @default_app.cache_logging)
+        assert_equal(true, @default_app.options.cache_logging)
       end
       
       it "the :cache_logging_level option should be correct (:debug)" do 
-        assert_equal(:debug, @default_app.cache_logging_level)
+        assert_equal(:debug, @default_app.options.cache_logging_level)
       end
       
     end #/default options
     
-    # describe "when using customized options" do 
-    #   
-    #   it "the :cache_enabled option should be correct (false)" do 
-    #     assert_equal(false, @custom_app.cache_enabled)
-    #   end
-    #   
-    #   it "the :cache_page_extension option should be correct (.cache.html)" do 
-    #     assert_equal('.cache.html', @custom_app.cache_page_extension)
-    #   end
-    #   
-    #   it "the :cache_dir option should be correct ('system/cache') " do 
-    #     assert_equal('system/cache', @custom_app.cache_dir)
-    #   end
-    #   
-    #   it "the :cache_logging option should be correct (true)" do 
-    #     assert_equal(false, @custom_app.cache_logging)
-    #   end
-    #   
-    #   it "the :cache_logging_level option should be correct (:info)" do 
-    #     assert_equal(:info, @custom_app.cache_logging_level)
-    #   end
-    #   
-    # end #/when using customized options
+    describe "when using customized options" do 
+      
+      it "the :cache_enabled option should be correct (false)" do 
+        assert_equal(false, @custom_app.options.cache_enabled)
+      end
+      
+      it "the :cache_page_extension option should be correct (.cache.html)" do 
+        assert_equal('.cache.html', @custom_app.options.cache_page_extension)
+      end
+      
+      it "the :cache_dir option should be correct ('system/cache') " do 
+        assert_equal('system/cache', @custom_app.options.cache_dir)
+      end
+      
+      it "the :cache_logging option should be correct (true)" do 
+        assert_equal(false, @custom_app.options.cache_logging)
+      end
+      
+      it "the :cache_logging_level option should be correct (:info)" do 
+        assert_equal(:info, @custom_app.options.cache_logging_level)
+      end
+      
+    end #/when using customized options
     
   end #/configuration methods
   
@@ -248,24 +239,23 @@ describe "Sinatra::Cache" do
     it "should description" do 
       request = Rack::MockRequest.new(@default_app)
       response = request.get('/')
-      assert response #inspect
-      assert_equal '', response.body
+      
+      # assert_equal '', response.inspect
+      # assert_equal '', response.body
     end
     
     describe "when using default options" do 
       
-      it "should create a cached page with the right name in the correct location" do 
-        request = Rack::MockRequest.new(@default_app)
-        response = request.get('/cache')
-        # assert response #inspect
-        assert_equal '', response.body
-        
-      end
+      # it "should create a cached page with the right name in the correct location" do 
+      #   request = Rack::MockRequest.new(@default_app)
+      #   response = request.get('/cache')
+      #   # assert response #inspect
+      #   # assert_equal '', response.body
+      #   
+      # end
       
     end #/when using default options
   end #/Page Caching
-  
-  
   
   
   describe "Sinatra::Base" do 
@@ -274,15 +264,21 @@ describe "Sinatra::Cache" do
       Sinatra::Base.register(Sinatra::Cache)
     end
     
-    it "should respond to" do 
-      assert(Sinatra::Base.respond_to?(:cache_enabled))
-      assert(Sinatra::Base.respond_to?(:cache_page_extension))
-      assert(Sinatra::Base.respond_to?(:cache_dir))
-      assert(Sinatra::Base.respond_to?(:cache_logging))
-      assert(Sinatra::Base.respond_to?(:cache_logging_level))
-      assert(Sinatra::Base.respond_to?(:cache))
-      assert(Sinatra::Base.respond_to?(:cache_expire))
-    end
+    describe "should respond to" do 
+      
+      [
+        "cache_dir", "cache_dir=","cache_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
+        "cache_logging","cache_logging=","cache_logging?","cache_logging_level","cache_logging_level=","cache_logging_level?",
+        "cache_page_extension","cache_page_extension=","cache_page_extension?"
+      ].each do |m|
+        
+        it "the :#{m} method" do 
+          assert_respond_to(Sinatra::Base, m.to_sym)
+        end
+        
+      end
+      
+    end #/should respond to
     
   end #/Sinatra::Base
   
@@ -291,18 +287,39 @@ describe "Sinatra::Cache" do
     before do
       Sinatra::Base.register(Sinatra::Cache)
     end
-    
-    it "should respond to" do 
-      assert(Sinatra::Default.respond_to?(:cache_enabled))
-      assert(Sinatra::Default.respond_to?(:cache_page_extension))
-      assert(Sinatra::Default.respond_to?(:cache_dir))
-      assert(Sinatra::Default.respond_to?(:cache_logging))
-      assert(Sinatra::Default.respond_to?(:cache_logging_level))
-      assert(Sinatra::Default.respond_to?(:cache))
-      assert(Sinatra::Default.respond_to?(:cache_expire))
-    end
+
+    describe "should respond to" do 
+      
+      [
+        "cache_dir", "cache_dir=","cache_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
+        "cache_logging","cache_logging=","cache_logging?","cache_logging_level","cache_logging_level=","cache_logging_level?",
+        "cache_page_extension","cache_page_extension=","cache_page_extension?"
+      ].each do |m|
+        
+        it "the :#{m} method" do 
+          assert_respond_to(Sinatra::Default, m.to_sym)
+        end
+        
+      end
+      
+    end #/should respond to
     
   end #/Sinatra::Default
+  
+  # it "should description" do 
+  #   assert_equal('Sinatra::Application', Sinatra::Application.methods.sort)
+  # end
+  # it "should description1" do 
+  #   assert_equal('Sinatra::Base', Sinatra::Base.methods.sort)
+  # end
+  # it "should description2" do 
+  #   assert_equal('@default_app', @default_app.methods.sort)
+  # end
+  # 
+  # it "should description3" do 
+  #   assert_equal('Sinatra::Default', Sinatra::Default.methods.sort)
+  # end
+  
   
   
 end #/Sinatra::Cache

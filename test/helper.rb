@@ -9,16 +9,15 @@
 #   require 'sinatra/base'
 # end
 
-libdir = File.dirname(File.dirname(__FILE__)) + '/lib'
-$LOAD_PATH.unshift libdir unless $LOAD_PATH.include?(libdir)
-require 'rubygems'
-# require "#{vendor_sinatra}/lib/sinatra/base"
-# require "#{vendor_sinatra}/lib/sinatra/base"
-# require "#{vendor_sinatra}/lib/sinatra/test/unit"
-# require "#{vendor_sinatra}/lib/sinatra/test/spec"
+PATH_2_MY_LIB = File.expand_path('../lib')
+$LOAD_PATH.unshift PATH_2_MY_LIB
 
+# libdir = File.dirname(File.dirname(__FILE__)) + '/lib'
+# $LOAD_PATH.unshift libdir unless $LOAD_PATH.include?(libdir)
+require 'rubygems'
 require 'sinatra/base'
-require 'sinatra/test/spec'
+require 'test/spec'
+require 'sinatra/test'
 
 class Sinatra::Base
   # Allow assertions in request context
@@ -29,12 +28,7 @@ class Test::Unit::TestCase
   include Sinatra::Test
 
   def setup
-    Sinatra::Default.set(
-      :environment => :test,
-      :run => false,
-      :raise_errors => true,
-      :logging => false
-    )
+    Sinatra::Default.set :environment, :test
   end
 
   # Sets up a Sinatra::Base subclass defined with the block
@@ -46,19 +40,57 @@ class Test::Unit::TestCase
 
   def restore_default_options
     Sinatra::Default.set(
+      :environment => :development,
       :raise_errors => Proc.new { test? },
       :dump_errors => true,
       :sessions => false,
-      :logging => true,
+      :logging => Proc.new { ! test? },
       :methodoverride => true,
       :static => true,
-      :run  => false
+      :run => Proc.new { ! test? }
     )
   end
-  
   
   def public_fixtures_path
     "#{File.dirname(__FILE__)}/fixtures/public"
   end
+  
 end
-
+# 
+# class Test::Unit::TestCase
+#   include Sinatra::Test
+# 
+#   def setup
+#     Sinatra::Default.set(
+#       :environment => :test,
+#       :run => false,
+#       :raise_errors => true,
+#       :logging => false
+#     )
+#   end
+# 
+#   # Sets up a Sinatra::Base subclass defined with the block
+#   # given. Used in setup or individual spec methods to establish
+#   # the application.
+#   def mock_app(base=Sinatra::Base, &block)
+#     @app = Sinatra.new(base, &block)
+#   end
+# 
+#   def restore_default_options
+#     Sinatra::Default.set(
+#       :raise_errors => Proc.new { test? },
+#       :dump_errors => true,
+#       :sessions => false,
+#       :logging => true,
+#       :methodoverride => true,
+#       :static => true,
+#       :run  => false
+#     )
+#   end
+#   
+#   def public_fixtures_path
+#     "#{File.dirname(__FILE__)}/fixtures/public"
+#   end
+#   
+# end
+# 
