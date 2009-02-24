@@ -11,7 +11,7 @@ module Sinatra
     def self.version; VERSION; end
     
     
-    module Helpers
+    module Helpers 
       
       # Caches the given URI to a html file in /public
       # 
@@ -22,13 +22,13 @@ module Sinatra
       # Also accepts an Options Hash, with the following options:
       #  * :extension => in case you need to change the file extension
       #  * 
-      #  TODO:: implement the options={} hash functionality. What options are needed?
-      def cache(content, options={})
+      #  TODO:: implement the opts={} hash functionality. What options are needed?
+      def cache(content, opts={})
         return content unless options.cache_enabled
         # return content unless self.cache_enabled
         
         unless content.nil?
-          path = cache_page_path(request.path_info,options)
+          path = cache_page_path(request.path_info,opts)
           log.info("path=[#{path}]")
           # FileUtils.makedirs(File.dirname(path))
           # open(path, 'wb+') { |f| f << content }
@@ -48,9 +48,9 @@ module Sinatra
       #    end
       #
       #  TODO:: implement the options={} hash functionality. What options are really needed ? 
-      def cache_expire(path = nil, options={})
+      def cache_expire(path = nil, opts={})
         return unless options.cache_enabled
-
+        
         path = (path.nil?) ? cache_page_path(request.path_info) : cache_page_path(path)
         if File.exist?(path)
           File.delete(path)
@@ -74,6 +74,37 @@ module Sinatra
         "<!-- page cached: #{Time.now.strftime("%Y-%d-%m %H:%M:%S")} -->" if options.cache_enabled
       end
       
+      # 
+      # 
+      private
+      #   
+        # establishes the file name of the cached file from the path given
+        #  TODO:: implement the opts={} functionality. Not sure IF we really need the :extension option or not?? 
+        def cache_file_name(path,opts={})
+          name = (path.empty? || path == "/") ? "index" : Rack::Utils.unescape(path.sub(/^(\/)/,'').chomp('/'))
+          name << options.cache_page_extension unless (name.split('/').last || name).include? '.'
+          return name
+        end
+
+        # sets the full path to the cached page/file
+        # Dependent upon Sinatra.options .public and .cache_dir variables being present and set.
+        # 
+        def cache_page_path(path,opts={})
+          # test if given a full path rather than relative path, otherwise join the public path to cache_dir
+          cache_dir = (options.cache_dir == File.expand_path(options.cache_dir)) ? options.cache_dir : "#{options.public}/#{options.cache_dir}"
+          cache_dir = cache_dir[0..-2] if cache_dir[-1,1] == '/'
+          "#{cache_dir}/#{cache_file_name(path,opts)}"
+        end
+        
+        
+        #  TODO:: need to make this work with the actual settings.... 
+        def log(msg,scope=:debug)
+          require 'logger'
+          logger ||= Logger.new(STDERR)
+          logger.level = Logger::DEBUG
+          # $LOG.level = Logger::INFO
+          logger.debug(msg)
+        end
       
     end #/module Helpers
     
@@ -95,37 +126,6 @@ module Sinatra
       app.set :cache_logging_level, :debug
     end
     
-    # 
-    # 
-    # private
-    #   
-      # establishes the file name of the cached file from the path given
-      #  TODO:: implement the opts={} functionality. Not sure IF we really need the :extension option or not?? 
-      def cache_file_name(path,opts={})
-        name = (path.empty? || path == "/") ? "index" : Rack::Utils.unescape(path.sub(/^(\/)/,'').chomp('/'))
-        name << options.cache_page_extension unless (name.split('/').last || name).include? '.'
-        return name
-      end
-      
-      # sets the full path to the cached page/file
-      # Dependent upon Sinatra.options .public and .cache_dir variables being present and set.
-      # 
-      def cache_page_path(path,opts={})
-        # test if given a full path rather than relative path
-        cache_dir = (options.cache_dir == File.expand_path(options.cache_dir)) ? options.cache_dir : "#{options.public}/#{options.cache_dir}"
-        cache_dir = cache_dir[0..-2] if cache_dir[-1,1] == '/'
-        "#{cache_dir}/#{cache_file_name(path,opts)}"
-      end
-      
-      
-      #  TODO:: need to make this work with the actual settings.... 
-      def log(msg,scope=:debug)
-        require 'logger'
-        logger ||= Logger.new(STDERR)
-        logger.level = Logger::DEBUG
-        # $LOG.level = Logger::INFO
-        logger.debug(msg)
-      end
           
   end #/module Cache
   
