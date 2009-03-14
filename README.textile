@@ -2,26 +2,43 @@ h1. Sinatra::Cache
 
 Adds a very *simple* Page Caching functionality to "Sinatra":http://www.sinatrarb.com/
 
-<div style="background: #EED367; padding: 10px 5px; border: 1px solid #D7C36C; text-align: center;">
-*NB!* Unfinished work, so use with care.
-<br>
+<hr>
+
+h3. *PLEASE KEEP THIS IN MIND* 
+
+This is *unfinished work*, so use with care.
 
 If you find it lacking or badly coded, please feel free to fork and improve. I'll be very happy :)
-</div>
+
+<hr>
 
 
-h3. TODOs
-
-* Improve the logging output to the standard Sinatra output (if we are having :logging enabled )
-* Add fragment and action (?) caching...
-* Enable the options functionality for the <tt>:cache</tt> & <tt>:cache_expire</tt> methods, so that they can take custom extensions and more
+h3. TODO's
 
 
-h3. Configuration
+= Make caching an option of the normal <tt>erb()/haml()/sass()</tt> methods, sort of like this:
+<pre><code>
+  erb(:index, :cache => true/false)
+  
+  # alternatively enable caching by setting a global config like this
+  set :cache_enabled_for :all || :only/except => ['/','/contact',...]
+  
+</code></pre>
 
-*Example 1:*
 
-Sinatra 'classic' app.
+= Improve the logging output to the standard Sinatra output (if we are having :logging enabled )
+
+= Add fragment caching...
+
+= Enable the options functionality for the <tt>:cache</tt> & <tt>:cache_expire</tt> methods, so that they can take custom extensions and more
+
+
+<hr>
+
+
+h3. CONFIGURATION
+
+*Example 1: Sinatra 'classic' app.*
 
   <pre><code>
   <snip....>
@@ -32,41 +49,43 @@ Sinatra 'classic' app.
   # sets the default extension for cached files
   set :cache_page_extension, '.html'
   # sets the Cache dir to the root of the /public directory.
-  set :cache_dir, '' 
+  set :cache_output_dir, '' # was :cache_dir
   ...
   </code></pre>
 
-*Example 2:*
-
-Sinatra 'sub-classed' app.
+*Example 2: Sinatra 'sub-classed' app.*
     
 <pre><code>
   <snip....>
   require 'sinatra/cache'
-
-  class MyApp < Sinatra::Base
   
+  class MyApp < Sinatra::Base
+    
     register Sinatra::Cache
-
+    
     # toggle for the cache functionality.
     set :cache_enabled, true
     # sets the default extension for cached files
     set :cache_page_extension, '.html'
-    # sets the Cache dir to the root of the /public directory.
-    set :cache_dir, '' 
-  
+    # sets the Cache output dir to the root of the /public directory.
+    set :cache_output_dir, '' # was :cache_dir
+    
     <snip....>
 </code></pre>
-    
 
-h3. Usage
+
+<hr>
+
+
+h3. USAGE
+
 
 Basic Page Caching into static HTML files
 
 <pre><code>
   get '/contact' do
     # NB!  options is currently not working
-    cache( erb( :contact ), :options => 'go here' )
+    cache( erb( :contact ), :options => 'should go here' )
   end
 </code></pre>
 
@@ -82,11 +101,14 @@ Expiring old pages (ie: after POST or PUT events)
 See the "test":test/ and "test/fixtures":test/fixtures/ directories for more examples.
 
 
-h3. Default Options
+<hr>
+
+
+h3. DEFAULT OPTIONS
 
 * <tt>:cache_enabled</tt> => toggle for the cache functionality. Default is: <tt>true</tt>
 * <tt>:cache_page_extension</tt> => sets the default extension for cached files. Default is: <tt>.html</tt>
-* <tt>:cache_dir</tt> => sets cache directory where cached files are stored. Default is: ''(empty) == root of /public.<br>
+* <tt>:cache_output_dir</tt> => sets cache directory where cached files are stored. Default is: ''(empty) == root of /public.<br>
     set to empty, since the ideal 'system/cache/' does not currently work with Passenger & mod_rewrite :(
 * <tt>:cache_logging</tt> => toggle for logging the cache calls. Default is: <tt>true</tt>
 * <tt>:cache_logging_level</tt> => sets the level of the cache logger. Default is: <tt>:info</tt>.<br>
