@@ -40,7 +40,7 @@ describe "Sinatra::Cache" do
       
       set :cache_enabled, false
       set :cache_page_extension, '.cache.html'
-      set :cache_dir, 'system/cache'
+      set :cache_output_dir, 'system/cache'
       set :cache_logging, false
       set :cache_logging_level, :info
       
@@ -228,8 +228,8 @@ describe "Sinatra::Cache" do
         assert_equal('.html', @default_app.options.cache_page_extension)
       end
       
-      it "the :cache_dir option should be correct ('') " do 
-        assert_equal('', @default_app.options.cache_dir)
+      it "the :cache_output_dir option should be correct ('') " do 
+        assert_equal('', @default_app.options.cache_output_dir)
       end
       
       it "the :cache_logging option should be correct (true)" do 
@@ -252,8 +252,8 @@ describe "Sinatra::Cache" do
         assert_equal('.cache.html', @custom_app.options.cache_page_extension)
       end
       
-      it "the :cache_dir option should be correct ('system/cache') " do 
-        assert_equal('system/cache', @custom_app.options.cache_dir)
+      it "the :cache_output_dir option should be correct ('system/cache') " do 
+        assert_equal('system/cache', @custom_app.options.cache_output_dir)
       end
       
       it "the :cache_logging option should be correct (true)" do 
@@ -288,9 +288,9 @@ describe "Sinatra::Cache" do
         request = Rack::MockRequest.new(@default_app)
         response = request.get('/cache')
         assert response
-        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, response.body)
+        assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, response.body)
         assert(test(?f, "#{public_fixtures_path}/cache.html"))
-        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, File.read("#{public_fixtures_path}/cache.html"))
+        assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, File.read("#{public_fixtures_path}/cache.html"))
       end
       
       it "should expire the /cache page" do 
@@ -334,7 +334,7 @@ describe "Sinatra::Cache" do
             
             set :cache_enabled, true
             set :cache_page_extension, '.cache.html'
-            set :cache_dir, 'system/cache'
+            set :cache_output_dir, 'system/cache'
             set :cache_logging, true
             set :cache_logging_level, :info
             
@@ -360,9 +360,9 @@ describe "Sinatra::Cache" do
           request = Rack::MockRequest.new(@custom_enabled_app)
           response = request.get('/cache')
           assert response
-          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, response.body)
+          assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\n$/, response.body)
           assert(test(?f, "#{public_fixtures_path}/system/cache/cache.cache.html"))
-          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, File.read("#{public_fixtures_path}/system/cache/cache.cache.html"))
+          assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\n$/, File.read("#{public_fixtures_path}/system/cache/cache.cache.html"))
         end
         
         it "should expire the /cache page" do 
@@ -392,7 +392,7 @@ describe "Sinatra::Cache" do
     describe "should respond to" do 
       
       [
-        "cache_dir", "cache_dir=","cache_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
+        "cache_output_dir", "cache_output_dir=","cache_output_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
         "cache_logging","cache_logging=","cache_logging?","cache_logging_level","cache_logging_level=","cache_logging_level?",
         "cache_page_extension","cache_page_extension=","cache_page_extension?"
       ].each do |m|
@@ -412,11 +412,11 @@ describe "Sinatra::Cache" do
     before do
       Sinatra::Base.register(Sinatra::Cache)
     end
-
+    
     describe "should respond to" do 
       
       [
-        "cache_dir", "cache_dir=","cache_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
+        "cache_output_dir", "cache_output_dir=","cache_output_dir?", "cache_enabled","cache_enabled=", "cache_enabled?",
         "cache_logging","cache_logging=","cache_logging?","cache_logging_level","cache_logging_level=","cache_logging_level?",
         "cache_page_extension","cache_page_extension=","cache_page_extension?"
       ].each do |m|
@@ -430,21 +430,5 @@ describe "Sinatra::Cache" do
     end #/should respond to
     
   end #/Sinatra::Default
-  
-  # it "should description" do 
-  #   assert_equal('Sinatra::Application', Sinatra::Application.methods.sort)
-  # end
-  # it "should description1" do 
-  #   assert_equal('Sinatra::Base', Sinatra::Base.methods.sort)
-  # end
-  # it "should description2" do 
-  #   assert_equal('@default_app', @default_app.methods.sort)
-  # end
-  # 
-  # it "should description3" do 
-  #   assert_equal('Sinatra::Default', Sinatra::Default.methods.sort)
-  # end
-  
-  
   
 end #/Sinatra::Cache

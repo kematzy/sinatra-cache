@@ -9,7 +9,7 @@ module Sinatra
   # 
   module Cache
     
-    VERSION = 'Sinatra::Cache v0.2.1'
+    VERSION = 'Sinatra::Cache v0.2.2'
     def self.version; VERSION; end
     
     
@@ -30,7 +30,7 @@ module Sinatra
         return content unless options.cache_enabled
         
         unless content.nil?
-          content = "#{page_cached_timestamp}#{content}\n"
+          content = "#{content}\n#{page_cached_timestamp}"
           path = cache_page_path(request.path_info,opts)
           FileUtils.makedirs(File.dirname(path))
           open(path, 'wb+') { |f| f << content }
@@ -94,9 +94,9 @@ module Sinatra
         def cache_page_path(path,opts={})
           # test if given a full path rather than relative path, otherwise join the public path to cache_dir 
           # and ensure it is a full path
-          cache_dir = (options.cache_dir == File.expand_path(options.cache_dir)) ? 
-              options.cache_dir : File.expand_path("#{options.public}/#{options.cache_dir}")
-          cache_dir = cache_dir[0..-2] if cache_dir[-1,1] == '/'
+          cache_dir = (options.cache_output_dir == File.expand_path(options.cache_output_dir)) ? 
+              options.cache_output_dir : File.expand_path("#{options.public}/#{options.cache_output_dir}")
+          cache_dir = cache_output_dir[0..-2] if cache_dir[-1,1] == '/'
           "#{cache_dir}/#{cache_file_name(path,opts)}"
         end
         
@@ -127,7 +127,7 @@ module Sinatra
       app.helpers(Cache::Helpers)
       app.set :cache_enabled, true
       app.set :cache_page_extension, '.html'
-      app.set :cache_dir, ''
+      app.set :cache_output_dir, ''
       app.set :cache_logging, true
       app.set :cache_logging_level, :info
     end
