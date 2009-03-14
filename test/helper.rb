@@ -7,7 +7,11 @@ $LOAD_PATH.unshift path_2_my_lib
 
 require 'rubygems'
 require 'sinatra/base'
-require 'test/spec'
+begin
+  require 'test/spec'
+rescue LoadError
+  raise "These tests depends upon the Test-Spec gem  [sudo gem install test-spec]"
+end
 require 'sinatra/test'
 
 
@@ -20,18 +24,18 @@ end
 
 class Test::Unit::TestCase
   include Sinatra::Test
-
+  
   def setup
     Sinatra::Default.set :environment, :test
   end
-
+  
   # Sets up a Sinatra::Base subclass defined with the block
   # given. Used in setup or individual spec methods to establish
   # the application.
   def mock_app(base=Sinatra::Base, &block)
     @app = Sinatra.new(base, &block)
   end
-
+  
   def restore_default_options
     Sinatra::Default.set(
       :environment => :development,
@@ -47,8 +51,12 @@ class Test::Unit::TestCase
   
   # quick convenience methods..
   
+  def fixtures_path
+    "#{File.dirname(File.expand_path(__FILE__))}/fixtures"
+  end
+  
   def public_fixtures_path
-    "#{File.dirname(File.expand_path(__FILE__))}/fixtures/public"
+    "#{fixtures_path}/public"
   end
   
 end

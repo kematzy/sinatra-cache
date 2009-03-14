@@ -62,6 +62,12 @@ describe "Sinatra::Cache" do
     @custom_app = custom_app.new
   end
   
+  
+  it "should description" do 
+    assert_equal('m', @default_app.inspect)
+  end
+  
+  
   describe "ClassMethods" do 
     
     describe "the :version method" do 
@@ -289,9 +295,9 @@ describe "Sinatra::Cache" do
         request = Rack::MockRequest.new(@default_app)
         response = request.get('/cache')
         assert response
-        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, response.body)
+        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, response.body)
         assert(test(?f, "#{public_fixtures_path}/cache.html"))
-        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, File.read("#{public_fixtures_path}/cache.html"))
+        assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, File.read("#{public_fixtures_path}/cache.html"))
       end
       
       it "should expire the /cache page" do 
@@ -320,7 +326,7 @@ describe "Sinatra::Cache" do
         request = Rack::MockRequest.new(@custom_app)
         response = request.get('/cache')
         assert response
-        assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d\.\d\]/, response.body)
+        assert_match(/^Hello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]/, response.body)
         assert_equal(false, test(?f, "#{public_fixtures_path}/cache.cache.html"))
       end
       
@@ -361,9 +367,9 @@ describe "Sinatra::Cache" do
           request = Rack::MockRequest.new(@custom_enabled_app)
           response = request.get('/cache')
           assert response
-          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, response.body)
+          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, response.body)
           assert(test(?f, "#{public_fixtures_path}/system/cache/cache.cache.html"))
-          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d\.\d\]\n/, File.read("#{public_fixtures_path}/system/cache/cache.cache.html"))
+          assert_match(/^<!-- page cached: \d+-\d+-\d+ \d+:\d+:\d+ -->\nHello World from Sinatra Version=\[\d\.\d\.\d(\.\d)?\]\n/, File.read("#{public_fixtures_path}/system/cache/cache.cache.html"))
         end
         
         it "should expire the /cache page" do 
