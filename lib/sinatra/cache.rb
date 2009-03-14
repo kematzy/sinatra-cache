@@ -9,7 +9,7 @@ module Sinatra
   # 
   module Cache
     
-    VERSION = 'Sinatra::Cache v0.2.0'
+    VERSION = 'Sinatra::Cache v0.2.1'
     def self.version; VERSION; end
     
     

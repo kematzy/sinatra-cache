@@ -55,18 +55,11 @@ describe "Sinatra::Cache" do
       get '/cache_expire' do
         cache_expire("/cache")
       end
-      
     end
     
     @default_app = default_app.new
     @custom_app = custom_app.new
   end
-  
-  
-  it "should description" do 
-    assert_equal('m', @default_app.inspect)
-  end
-  
   
   describe "ClassMethods" do 
     
