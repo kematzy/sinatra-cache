@@ -1,0 +1,164 @@
+= Sinatra::Cache
+
+Adds a very *simple* Page Caching functionality to "Sinatra":http://www.sinatrarb.com/
+
+<hr>
+
+==  *PLEASE KEEP THIS IN MIND* 
+
+This is *unfinished work*, so use with care.
+
+If you find it lacking or badly coded, please feel free to fork and improve. I'll be very happy :)
+
+<hr>
+
+
+== TODO's
+
+
+* Make caching an option of the normal <tt>erb()/haml()/sass()</tt> methods, sort of like this:
+
+  erb(:index, :cache => true/false)
+
+  # alternatively enable caching by setting a global config like this
+  set :cache_enabled_for :all || :only/except => ['/','/contact',...]
+
+
+* Improve the logging output to the standard Sinatra output (if we are having :logging enabled )
+
+* Add fragment caching...
+
+* Enable the options functionality for the <tt>:cache</tt> & <tt>:cache_expire</tt> methods, so that they can take custom extensions and more
+
+
+<hr>
+
+
+== CONFIGURATION
+
+* Example 1: Sinatra 'classic' app.*
+
+  <snip....>
+  require 'sinatra/cache'
+
+  # toggle for the cache functionality.
+  set :cache_enabled, true
+  # sets the default extension for cached files
+  set :cache_page_extension, '.html'
+  # sets the Cache dir to the root of the /public directory.
+  set :cache_output_dir, '' # was :cache_dir
+  ...
+
+*Example 2: Sinatra 'sub-classed' app.*
+    
+  <snip....>
+  require 'sinatra/cache'
+  
+  class MyApp < Sinatra::Base
+    
+    register Sinatra::Cache
+    
+    # toggle for the cache functionality.
+    set :cache_enabled, true
+    # sets the default extension for cached files
+    set :cache_page_extension, '.html'
+    # sets the Cache output dir to the root of the /public directory.
+    set :cache_output_dir, '' # was :cache_dir
+    
+    <snip....>
+
+
+<hr>
+
+
+== USAGE
+
+
+Basic Page Caching into static HTML files
+
+  get '/contact' do
+    # NB!  options is currently not working
+    cache( erb( :contact ), :options => 'should go here' )
+  end
+
+Expiring old pages (ie: after POST or PUT events) 
+
+  # not very good example
+  post '/contact' do
+    cache_expire( '/contact', options )
+  end
+
+See the "test":test/ and "test/fixtures":test/fixtures/ directories for more examples.
+
+
+<hr>
+
+
+=== DEFAULT OPTIONS
+
+* <tt>:cache_enabled</tt> => toggle for the cache functionality. Default is: <tt>true</tt>
+* <tt>:cache_page_extension</tt> => sets the default extension for cached files. Default is: <tt>.html</tt>
+* <tt>:cache_output_dir</tt> => sets cache directory where cached files are stored. Default is: ''(empty) == root of /public.<br>
+    set to empty, since the ideal 'system/cache/' does not currently work with Passenger & mod_rewrite :(
+* <tt>:cache_logging</tt> => toggle for logging the cache calls. Default is: <tt>true</tt>
+* <tt>:cache_logging_level</tt> => sets the level of the cache logger. Default is: <tt>:info</tt>.<br>
+    Options:(unused atm) [:info, :warn, :debug]
+
+
+<hr>
+
+=== Credits
+
+A big *Thank You!* goes to "*rtomayko*":http://github.com/rtomayko/, "*blakemizerany*":http://github.com/blakemizerany/ and others working on the Sinatra framework.
+
+Inspired by code from "Rails":http://rubyonrails.com/ &amp; "Merb":http://merbivore.com/
+and "sinatra-mailer":http://github.com/foca/sinatra-mailer/tree/master
+
+
+
+
+
+
+
+== IMPORTANT POINTS TO CONSIDER
+
+=== The DANGERs of URL Query Params
+
+Let's say you have URL like this:
+
+  /products/?product_id=111
+
+and then inside the that template [ .../views/products.erb ], 
+you take the product_id param passed in and defines something.
+
+  <h2>Product ID: <%= params[:product_id] %></h2>  # => 111
+
+
+The caching of this URL then happens with the value provided, 
+and the cached file [ ../public/cache/products.html ] has that same value inside itself.
+
+Now someone comes along and ....
+
+
+
+
+
+
+
+
+Description goes here.
+
+== Note on Patches/Pull Requests
+ 
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but
+   bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Copyright (c) 2009 kematzy. See LICENSE for details.
