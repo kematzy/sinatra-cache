@@ -1,9 +1,16 @@
-## OS SPECIFIC
+## OS STUFF
 .DS_Store
+
+## TM SPECIFIC
 *.tmproj
-## 
-# ignore the gem dir
-pkg/*
-vendor/*
-fixtures/public/*
-fixtures/cache/*
+tmtags
+
+## PROJECT::GENERAL
+*.sw?
+coverage
+rdoc
+pkg
+doc
+
+## PROJECT::SPECIFIC
+spec/fixtures/public/*
