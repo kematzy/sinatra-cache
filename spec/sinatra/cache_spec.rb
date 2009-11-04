@@ -46,9 +46,9 @@ describe "Sinatra" do
         erb(:fragments, :layout => false, :cache => false)
       end
       
-      get '/output' do
-        @var = OpenStruct.new( :name => "Steve Jobs", :company => "Apple Inc." )
-      end
+      # get '/output' do
+      #   @var = OpenStruct.new( :name => "Steve Jobs", :company => "Apple Inc." )
+      # end
       
     end
     
@@ -255,29 +255,30 @@ describe "Sinatra" do
           
         end #/ GET '/haml' - haml.html
         
-        describe "GET '/output.EXT  - " do 
-          
-          it "should description" do 
-            get('/output.xml') 
-            
-            body.should == ''
-          end
-          
-        end #/ GET '/output.EXT
+        # describe "GET '/output.EXT  - " do 
+        #   
+        #   it "should description" do 
+        #     get('/output.xml') 
+        #     
+        #     body.should == ''
+        #   end
+        #   
+        # end #/ GET '/output.EXT
+        
       end #/ basic Page caching
       
-      describe "caching with URL query strings [ /?page=2 ]" do 
-        
-        it "should completely ignore the URL queries in the cached file path" do 
-          
-        end
-        
-        it "should overwrite the " do
-          
-        end
-        
-      end #/ caching with URL query strings [ /products/?page=2 ]
-      
+      # describe "caching with URL query strings [ /?page=2 ]" do 
+      #   
+      #   it "should completely ignore the URL queries in the cached file path" do 
+      #     
+      #   end
+      #   
+      #   it "should overwrite the " do
+      #     
+      #   end
+      #   
+      # end #/ caching with URL query strings [ /products/?page=2 ]
+      # 
       
       # describe "fragment caching" do 
       #   
@@ -292,7 +293,8 @@ describe "Sinatra" do
       
       describe "caching with URL params" do 
         
-        %w(/params/? /params/page/?page=2 /params/page/?page=99 /params/a/  /params/a/b /params/a/b/c /params/a/b/c/d ).each do |url|
+        # %w(/params/? /params/page/?page=2 /params/page/?page=99 /params/a/  /params/a/b /params/a/b/c /params/a/b/c/d ).each do |url|
+        %w(/params/? /params/a/  /params/a/b /params/a/b/c /params/a/b/c/d ).each do |url|
           
           file_url = (url[-1,1] =~ /\/|\?/) ? "#{url.chomp('?')}index" : url
           
