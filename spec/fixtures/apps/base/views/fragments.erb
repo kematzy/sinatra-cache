@@ -1,5 +1,11 @@
 <h1>FRAGMENTS</h1>
-<% cache_fragment(:test_fragment1) do %>
-  <%= "Fragment created: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}" %>
+
+<% cache_fragment(:test_fragment) do %>
+<div id="cache-fragment">
+  <p><%= "Fragment created: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}" %></p>
+</div>
+<% sleep 1 %>
 <% end %>
 
+<h2>Content After Sleep</h2>
+<p><%= "Time is now: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}" %></p>

@@ -1,0 +1,11 @@
+<h1>FRAGMENTS - SHARED</h1>
+
+<% cache_fragment(:test_fragment, :shared) do %>
+<div id="cache-fragment">
+  <p><%= "Shared Fragment created: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}" %></p>
+</div>
+<% sleep 1 %>
+<% end %>
+
+<h2>Content After Sleep</h2>
+<p><%= "Time is now: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}" %></p>
