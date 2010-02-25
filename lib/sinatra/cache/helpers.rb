@@ -74,7 +74,7 @@ module Sinatra
   # === <tt>:cache_enabled</tt>
   # 
   # This setting toggles the cache functionality On / Off. 
-  # Default is: <tt>true</tt>
+  # Default is: <tt>false</tt>
   # 
   # 
   # === <tt>:cache_environment</tt>
@@ -92,7 +92,7 @@ module Sinatra
   # === <tt>:cache_output_dir</tt>
   # 
   # Sets cache directory where the cached files are stored. 
-  # Default is: ''(empty) == root of /public.
+  # Default is:  == "/path/2/your/app/public"
   # 
   # Although you can set it to the more ideal '<tt>..public/system/cache/</tt>' 
   # if you can get that to work with your webserver setup.
@@ -144,14 +144,14 @@ module Sinatra
   # 
   #     <snip...>
   # 
-  #     get('/') { erb(:index) }            # => cached as '../index.html'
+  #     get('/') { erb(:index) }            # => is cached as '../index.html'
   # 
-  #     get('/contact') { erb(:contact) }   # => cached as '../contact.html'
+  #     get('/contact') { erb(:contact) }   # => is cached as '../contact.html'
   # 
   #     # NB! the trailing slash on the URL
-  #     get('/about/') { erb(:about) }      # => cached as '../about/index.html'
+  #     get('/about/') { erb(:about) }      # => is cached as '../about/index.html'
   # 
-  #     get('/feed.rss') { builder(:feed) }  # => cached as '../feed.rss' 
+  #     get('/feed.rss') { builder(:feed) }  # => is cached as '../feed.rss' 
   #     # NB! uses the extension of the passed URL, 
   #     # but DOES NOT ensure the format of the content based on the extension provided.
   # 
@@ -159,12 +159,12 @@ module Sinatra
   #     get %r{/articles/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?}  do
   #       erb(:articles)
   #     end
-  #     # with the '/articles/a/b/c  => cached as ../articles/a/b/c.html
+  #     # with the '/articles/a/b/c  => is cached as ../articles/a/b/c.html
   # 
   #     # NB! the trailing slash on the URL
-  #     # with the '/articles/a/b/c/  => cached as ../articles/a/b/c/index.html
+  #     # with the '/articles/a/b/c/  => is cached as ../articles/a/b/c/index.html
   # 
-  #     # CSS caching via Sass  # => cached as '.../css/screen.css'
+  #     # CSS caching via Sass  # => is cached as '.../css/screen.css'
   #     get '/css/screen.css' do 
   #       content_type 'text/css'
   #       sass(:'css/screen')
@@ -185,7 +185,7 @@ module Sinatra
   # 
   # == Fragment Caching 
   # 
-  # If you just need to cache a fragment of a page, then you'd do as follows:
+  # If you just need to cache a fragment of a page, then you would do as follows:
   # 
   #   class YourApp
   # 
@@ -252,7 +252,7 @@ module Sinatra
   # <b>Under development, and not entirely final.</b> See Todo's below for more info.
   # 
   # 
-  # To expire a cached item - file or fragment you use the :cache_expire() method.
+  # To expire a cached item - file or fragment - you use the :cache_expire() method.
   # 
   # 
   #   cache_expire('/contact')  =>  expires ../contact.html
@@ -606,7 +606,7 @@ module Sinatra
     ##
     # The default options:
     # 
-    # * +:cache_enabled+ => toggle for the cache functionality. Default is: +true+
+    # * +:cache_enabled+ => toggle for the cache functionality. Default is: +false+
     # 
     # * +:cache_environment+ => sets the environment during which to cache. Default is: +:production+
     # 

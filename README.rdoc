@@ -82,25 +82,25 @@ one of Sinatra's render methods:
 The default settings should help you get moving quickly, and are fairly common sense based.
 
 
-=== <tt>:cache_enabled</tt>
+==== <tt>:cache_enabled</tt>
 
 This setting toggles the cache functionality On / Off. 
-Default is: <tt>true</tt>
+Default is: <tt>false</tt>
 
 
-=== <tt>:cache_environment</tt>
+==== <tt>:cache_environment</tt>
 
 Sets the environment during which the cache functionality is active. 
 Default is: <tt>:production</tt>
 
 
-=== <tt>:cache_page_extension</tt>+ 
+==== <tt>:cache_page_extension</tt>+ 
 
 Sets the default file extension for cached files. 
 Default is: <tt>.html</tt>
 
 
-=== <tt>:cache_output_dir</tt>
+==== <tt>:cache_output_dir</tt>
 
 Sets cache directory where the cached files are stored. 
 Default is:  == "/path/2/your/app/public"
@@ -109,7 +109,7 @@ Although you can set it to the more ideal '<tt>..public/system/cache/</tt>'
 if you can get that to work with your webserver setup.
 
 
-=== <tt>:cache_fragments_output_dir</tt>
+==== <tt>:cache_fragments_output_dir</tt>
 
 Sets the directory where cached fragments are stored. 
 Default is the '../tmp/cache_fragments/' directory at the root of your app.
@@ -117,13 +117,13 @@ Default is the '../tmp/cache_fragments/' directory at the root of your app.
 This is for security reasons since you don't really want your cached fragments publically available.
 
 
-=== <tt>:cache_fragments_wrap_with_html_comments</tt>
+==== <tt>:cache_fragments_wrap_with_html_comments</tt>
 
 This setting toggles the wrapping of cached fragments in HTML comments. (see below)
 Default is: <tt>true</tt>
 
 
-=== <tt>:cache_logging</tt>
+==== <tt>:cache_logging</tt>
 
 This setting toggles the logging of various cache calls. If the app has access to the <tt>#logger</tt> method,
 curtesy of Sinatra::Logger[http://github.com/kematzy/sinatra-logger] then it will log there, otherwise logging 
@@ -132,7 +132,7 @@ is silent.
 Default is: <tt>true</tt>
 
 
-=== <tt>:cache_logging_level</tt>
+==== <tt>:cache_logging_level</tt>
 
 Sets the level at which the cache logger should log it's messages. 
 Default is: <tt>:info</tt>
