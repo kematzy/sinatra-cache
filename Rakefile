@@ -5,13 +5,15 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "sinatra-cache"
-    gem.summary = %Q{Simple Page Caching for Sinatra [www.sinatrarb.com]}
-    gem.description = %Q{Simple Page Caching for Sinatra [www.sinatrarb.com]}
+    gem.summary = %Q{A Sinatra Extension that makes Page and Fragment Caching easy.}
+    gem.description = %Q{A Sinatra Extension that makes Page and Fragment Caching easy.}
     gem.email = "kematzy@gmail.com"
     gem.homepage = "http://github.com/kematzy/sinatra-cache"
     gem.authors = ["kematzy"]
+    gem.add_dependency('sinatra', '>=1.0.a')
     # gem.add_dependency('dependency', '>=x.x.x')
-    gem.add_development_dependency("rspec")
+    gem.add_development_dependency "sinatra-tests", ">= 0.1.6"
+    gem.add_development_dependency "rspec", ">= 1.3.0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
@@ -32,6 +34,23 @@ Spec::Rake::SpecTask.new(:rcov) do |spec|
   spec.rcov = true
 end
 
+namespace :spec do
+  
+  desc "Run all specifications verbosely"
+  Spec::Rake::SpecTask.new(:verbose) do |t|
+    t.libs << "lib"
+    t.spec_opts = ["--color", "--format", "specdoc", "--require", "spec/spec_helper.rb"]
+  end
+  
+  desc "Run specific spec verbosely (SPEC=/path/2/file)"
+  Spec::Rake::SpecTask.new(:select) do |t|
+    t.libs << "lib"
+    t.spec_files = [ENV["SPEC"]]
+    t.spec_opts = ["--color", "--format", "specdoc", "--require", "spec/spec_helper.rb"] 
+  end
+  
+end
+
 task :spec => :check_dependencies
 
 task :default => :spec
@@ -50,7 +69,7 @@ desc 'Build the rdoc HTML Files'
 task :docs do
   version = File.exist?('VERSION') ? IO.read('VERSION').chomp : "[Unknown]"
     
-  sh "sdoc -N --title 'Sinatra::Cache v#{version}' lib/"
+  sh "sdoc -N --title 'Sinatra::Cache v#{version}' lib/ README.rdoc"
 end
 
 namespace :docs do
@@ -68,21 +87,3 @@ namespace :docs do
   end
   
 end
-
-
-namespace :cache do
-  
-  desc "Create the cache directories. path=public/system/cache"
-  task :dirs, [:path] do |t, args|
-    unless args.path
-      msg = %Q[\nERROR:\n\n  You must define the :path variable like this:\n]
-      msg << %Q[  rake cache:dirs path=public/system/cache \n\n]
-      puts msg
-    else
-      puts "mkdir -p #{args.path}"
-      # sh "mkdir -p #{args.path}"
-      # sh "mkdir -p #{args.path}/fragments"
-    end
-  end
-  
-end #/ namespace cache
