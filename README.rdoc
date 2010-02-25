@@ -352,6 +352,8 @@ Report it here: http://github.com/kematzy/sinatra-cache/issues
 
 * Work out how to use the <tt>cache_expire()</tt> functionality in a logical way.
 
+* Work out and include instructions on how to use a '../public/custom/cache/dir' with Passenger.
+
 * Write more tests to ensure everything is very solid.
 
 * Any other improvements you or I can think of.
