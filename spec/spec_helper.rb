@@ -4,6 +4,7 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
+ENV['RACK_ENV'] = 'test'
 
 #--
 # DEPENDENCIES
@@ -13,6 +14,8 @@ sinatra/base
 fileutils
 sass
 ostruct
+yaml
+json
 ).each {|lib| require lib }
 
 #--
@@ -27,7 +30,7 @@ sinatra/cache
 Spec::Runner.configure do |config|
   config.include RspecHpricotMatchers
   config.include Sinatra::Tests::TestCase
-  # config.include Sinatra::Tests::SharedSpecs
+  config.include Sinatra::Tests::RSpec::SharedSpecs
 end
 
 
@@ -45,7 +48,6 @@ class MyTestApp < Sinatra::Base
   
   set :app_dir, "#{APP_ROOT}/apps/base"
   set :public, "#{fixtures_path}/public"
-  # set :views, "#{fixtures_path}/app/views"
   set :views, "#{app_dir}/views"
   
   register(Sinatra::Tests)
@@ -56,7 +58,5 @@ end #/class MyTestApp
 
 
 class Test::Unit::TestCase
-  # include Sinatra::Tests::TestCase
   Sinatra::Base.set :environment, :test
-  
 end
