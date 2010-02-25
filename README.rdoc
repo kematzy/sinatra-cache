@@ -103,7 +103,7 @@ Default is: <tt>.html</tt>
 === <tt>:cache_output_dir</tt>
 
 Sets cache directory where the cached files are stored. 
-Default is: ''(empty) == root of /public.
+Default is:  == "/path/2/your/app/public"
 
 Although you can set it to the more ideal '<tt>..public/system/cache/</tt>' 
 if you can get that to work with your webserver setup.

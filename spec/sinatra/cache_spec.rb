@@ -110,8 +110,8 @@ describe "Sinatra" do
           MyDefaultsTestApp.cache_page_extension.should == '.html'
         end
         
-        it "should set :cache_output_dir to '' [empty]" do 
-          MyDefaultsTestApp.cache_output_dir.should == ''
+        it "should set :cache_output_dir to '../public'" do 
+          MyDefaultsTestApp.cache_output_dir.should == "#{public_fixtures_path}"
         end
         
         it "should set :cache_fragments_output_dir to '../tmp/cache_fragments'" do 

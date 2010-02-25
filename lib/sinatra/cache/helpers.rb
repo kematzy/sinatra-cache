@@ -612,8 +612,9 @@ module Sinatra
     # 
     # * +:cache_page_extension+ => sets the default extension for cached files. Default is: +.html+
     # 
-    # * +:cache_output_dir+ => sets cache directory where cached files are stored. Default is: ''(empty) == root of /public.<br>
-    #   set to empty, since the ideal 'system/cache/' does not work with Passenger & mod_rewrite :(
+    # * +:cache_output_dir+ => sets cache directory where cached files are stored. Default is: == "/path/2/your/app/public"
+    #   Although you can set it to the more ideal '<tt>..public/system/cache/</tt>' 
+    #   if you can get that to work with your webserver setup.
     # 
     # * +:cache_fragments_output_dir+ => sets the directory where cached fragments are stored. 
     #   Default is the '../tmp/cache_fragments/' directory at the root of your app.
@@ -635,7 +636,7 @@ module Sinatra
       app.set :cache_enabled, false
       app.set :cache_environment, :production
       app.set :cache_page_extension, '.html'
-      app.set :cache_output_dir, ''
+      app.set :cache_output_dir, lambda { app.public }
       app.set :cache_fragments_output_dir, lambda { "#{app.root}/tmp/cache_fragments" }
       app.set :cache_fragments_wrap_with_html_comments, true
       
