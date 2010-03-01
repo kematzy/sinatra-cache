@@ -18,19 +18,6 @@ With that said, on to the real stuff.
 
 == Installation
   
-<b>NB! There is currently a problem with adding the <tt>sinatra-cache</tt> gem on RubyGems.org</b>
-
-While we try to sort out the issue, please clone the source and do a manual install.
-  
-  git clone
-  cd sinatra-cache
-  
-  rake install
-
-
----
-
-  
   #  Add RubyGems.org (former Gemcutter) to your RubyGems sources 
   $  gem sources -a http://rubygems.org
 
