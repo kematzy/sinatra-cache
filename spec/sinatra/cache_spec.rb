@@ -70,7 +70,8 @@ describe "Sinatra" do
       
     end
     
-    
+    # convenience shared spec that sets up MyTestApp and tests it's OK,
+    # without it you will get "stack level too deep" errors
     it_should_behave_like "MyTestApp"
     
     # it_should_behave_like "debug => app.methods"
