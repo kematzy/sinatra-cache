@@ -36,10 +36,10 @@ end
 
 namespace :spec do
   
-  desc "Run all specifications verbosely"
-  Spec::Rake::SpecTask.new(:verbose) do |t|
+  desc "Run all specifications quietly"
+  Spec::Rake::SpecTask.new(:quiet) do |t|
     t.libs << "lib"
-    t.spec_opts = ["--color", "--format", "specdoc", "--require", "spec/spec_helper.rb"]
+    t.spec_opts = ["--color", "--require", "spec/spec_helper.rb"]
   end
   
   desc "Run specific spec verbosely (SPEC=/path/2/file)"
