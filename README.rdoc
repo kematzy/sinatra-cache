@@ -21,7 +21,7 @@ With that said, on to the real stuff.
   #  Add RubyGems.org (former Gemcutter) to your RubyGems sources 
   $  gem sources -a http://rubygems.org
 
-  $  (sudo)? gem install sinatra-cache --version 0.3.0
+  $  (sudo)? gem install sinatra-cache 
 
 == Dependencies
 

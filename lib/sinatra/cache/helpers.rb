@@ -19,7 +19,11 @@ module Sinatra
   # === Runtime:
   # 
   # * sinatra ( >= 1.0.a )
+  # * sinatra-outputbuffer[http://github.com/kematzy/sinatra-outputbuffer] (>= 0.1.0)
   # 
+  # Optionals:
+  # 
+  # * sinatra-settings[http://github.com/kematzy/sinatra-settings] (>= 0.1.1) # to view default settings in a browser display.
   # 
   # === Development & Tests:
   # 
