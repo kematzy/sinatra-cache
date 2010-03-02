@@ -1,5 +1,6 @@
 
 require 'sinatra/base'
+require 'sinatra/outputbuffer'
 
 module Sinatra
   module Cache
@@ -8,6 +9,6 @@ module Sinatra
   end #/ Cache
 end #/ Sinatra
 
-%w(templates output cache/helpers).each do |lib| 
+%w(templates cache/helpers).each do |lib| 
   require "sinatra/#{lib}" 
 end

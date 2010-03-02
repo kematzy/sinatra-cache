@@ -30,14 +30,18 @@ This Gem depends upon the following:
 === Runtime:
 
 * sinatra ( >= 1.0.a )
+* sinatra-outputbuffer[http://github.com/kematzy/sinatra-outputbuffer] (>= 0.1.0)
 
+Optionals:
+
+* sinatra-settings[http://github.com/kematzy/sinatra-settings] (>= 0.1.1) # to view default settings in a browser display.
 
 === Development & Tests:
 
+* sinatra-tests (>= 0.1.6)
 * rspec (>= 1.3.0 )
 * rack-test (>= 0.5.3)
 * rspec_hpricot_matchers (>= 0.1.0)
-* sinatra-tests (>= 0.1.6)
 * fileutils
 * sass
 * ostruct
@@ -375,14 +379,6 @@ Copyright (c) 2009-2010 kematzy. Released under the MIT License.
 See LICENSE for details.
 
 === Credits
-
-Included in this gem is code from <tt>SinatraMore::OutputHelpers</tt>, taken from the
-<tt>sinatra_more</tt> gem [ http://github.com/nesquena/sinatra_more/ ] by Nathan Esquenazi.
-
-The code was renamed to Sinatra::Output to prevent any extension clashes. 
-
-Copyright (c) 2009 Nathan Esquenazi.  Released under the MIT License.
-
 
 A big <b>Thank You!</b> goes to rtomayko[http://github/rtomayko], blakemizerany[http://github.com/blakemizerany/] 
 and others working on the Sinatra framework.

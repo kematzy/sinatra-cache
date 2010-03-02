@@ -629,7 +629,7 @@ module Sinatra
     # 
     # 
     def self.registered(app)
-      app.helpers Sinatra::Output::Helpers
+      app.register(Sinatra::OutputBuffer)
       app.helpers Cache::Helpers
       
       ## CONFIGURATIONS::
