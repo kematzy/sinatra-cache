@@ -24,6 +24,14 @@ describe "Sinatra" do
       set :cache_output_dir, "#{public_fixtures_path}/system/cache"
       set :cache_fragments_output_dir, "#{public_fixtures_path}/system/cache_fragments"
       
+      # NB! Although without tests, the positioning of the custom method in relation to other 
+      # Cache related declaration has no effect.
+      helpers do 
+        def uncached_erb(template, options={}) 
+          erb(template, options.merge(:cache => false ))
+        end
+      end
+      
       get('/') { erb(:index) }
       get('/erb/?') { erb(:index, :layout => false) }
       
@@ -45,6 +53,11 @@ describe "Sinatra" do
           # @vars.inspect
         end
       end
+      
+      ## NO CACHING 
+      get('/uncached/erb'){ erb(:index, :cache => false) }
+      get('/uncached/erb/no/layout'){ erb(:index, :cache => false, :layout => false ) }
+      get('/uncached/uncached_erb'){ uncached_erb(:index) }
       
       get '/css/screen.css' do 
         content_type 'text/css'
@@ -342,6 +355,60 @@ describe "Sinatra" do
             end #/ end loop
             
           end #/ URLs with multiple levels and/or with ?params attached
+          
+          describe "with :cache => false, :layout => false " do 
+            
+            before(:each) do 
+              @cache_file = "#{public_fixtures_path}/system/cache/uncached/erb/no/layout.html"
+              get('/uncached/erb/no/layout')
+            end
+            
+            it "should output the correct HTML as expected" do 
+              body.should have_tag('h1', 'HOME')
+            end
+            
+            it "should NOT cache the output" do 
+              test(?d, File.dirname(@cache_file) ).should == false  # testing for directory
+              test(?f, @cache_file).should == false
+            end
+            
+          end #/ with :cache => false, :layout => false 
+          
+          describe "with :cache => false" do 
+            
+            before(:each) do 
+              @cache_file = "#{public_fixtures_path}/system/cache/uncached/erb.html"
+              get('/uncached/erb')
+            end
+            
+            it "should output the correct HTML as expected" do 
+              body.should have_tag('h1', 'HOME')
+            end
+            
+            it "should NOT cache the output" do 
+              test(?d, File.dirname(@cache_file) ).should == false  # testing for directory
+              test(?f, @cache_file).should == false
+            end
+            
+          end #/ with :cache => false
+          
+          describe "URLs with custom erb helpers, like :admin_erb().." do 
+            
+            before(:each) do 
+              @cache_file = "#{public_fixtures_path}/system/cache/uncached/uncached_erb.html"
+              get('/uncached/uncached_erb')
+            end
+            
+            it "should output the correct HTML as expected" do 
+              body.should have_tag('html > body > h1', 'HOME')
+            end
+            
+            it "should NOT cache the output" do 
+              test(?d, File.dirname(@cache_file) ).should == false  # testing for directory
+              test(?f, @cache_file).should == false
+            end
+            
+          end #/ URLs with custom erb helpers, like :admin_erb()..
           
           describe "CSS URLs with dynamic .sass files" do 
             
