@@ -21,8 +21,8 @@ describe "Sinatra" do
       
       set :cache_enabled, true
       set :cache_environment, :test
-      set :cache_output_dir, "#{public_fixtures_path}/system/cache"
-      set :cache_fragments_output_dir, "#{public_fixtures_path}/system/cache_fragments"
+      set :cache_output_dir, "#{test_cache_path('system/cache')}"
+      set :cache_fragments_output_dir, "#{test_cache_path('system/cache')}_fragments"
       
       # NB! Although without tests, the positioning of the custom method in relation to other 
       # Cache related declaration has no effect.
@@ -157,11 +157,11 @@ describe "Sinatra" do
         end
         
         it "should set :cache_output_dir to '../public/system/cache'" do 
-          MyTestApp.cache_output_dir.should == "#{public_fixtures_path}/system/cache"
+          MyTestApp.cache_output_dir.should == "#{test_cache_path('system/cache')}"
         end
         
         it "should set :cache_fragments_output_dir to '../public/system/cache_fragments'" do 
-          MyTestApp.cache_fragments_output_dir.should == "#{public_fixtures_path}/system/cache_fragments"
+          MyTestApp.cache_fragments_output_dir.should == "#{test_cache_path('system/cache')}_fragments"
         end
         
         it "should set :cache_logging to true" do 
@@ -228,7 +228,7 @@ describe "Sinatra" do
           describe "the Home page - ['/' => /index.html] (with layout)" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/index.html"
+              @cache_file = "#{test_cache_path('system/cache')}/index.html"
               get('/')
             end
             
@@ -251,7 +251,7 @@ describe "Sinatra" do
           describe "a basic URL without a trailing slash - ['/erb' => /erb.html] (ERB without layout)" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/erb.html"
+              @cache_file = "#{test_cache_path('system/cache')}/erb.html"
               get('/erb')
             end
             
@@ -272,7 +272,7 @@ describe "Sinatra" do
           describe "a basic URL with a trailing slash - ['/erb/' => /erb/index.html]" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/erb/index.html"
+              @cache_file = "#{test_cache_path('system/cache')}/erb/index.html"
               get('/erb/')
             end
             
@@ -294,7 +294,7 @@ describe "Sinatra" do
             
             before(:each) do 
               ext =  '.yaml'
-              @cache_file = "#{public_fixtures_path}/system/cache/file-extensions#{ext}"
+              @cache_file = "#{test_cache_path('system/cache')}/file-extensions#{ext}"
               get("/file-extensions#{ext}") 
             end
             
@@ -330,14 +330,14 @@ describe "Sinatra" do
                 
                 before(:each) do 
                   @file_url = file_url
-                  @cache_file = "#{public_fixtures_path}/system/cache#{file_url}"
+                  @cache_file = "#{test_cache_path('system/cache')}#{file_url}"
                   @cache_file << ".html" if File.extname(@file_url) == '' 
                   # puts "when the URL=[#{url}] the @cache_file=[#{@cache_file}] [#{__FILE__}:#{__LINE__}]"
                   get(url)
                 end
                 
                 after(:each) do 
-                  FileUtils.remove_dir("#{public_fixtures_path}/system/cache/params") if @delete_cached_test_files
+                  FileUtils.remove_dir("#{test_cache_path('system/cache')}/params") if @delete_cached_test_files
                 end
                 
                 it "should render the expected output" do 
@@ -359,7 +359,7 @@ describe "Sinatra" do
           describe "with :cache => false, :layout => false " do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/uncached/erb/no/layout.html"
+              @cache_file = "#{test_cache_path('system/cache')}/uncached/erb/no/layout.html"
               get('/uncached/erb/no/layout')
             end
             
@@ -377,7 +377,7 @@ describe "Sinatra" do
           describe "with :cache => false" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/uncached/erb.html"
+              @cache_file = "#{test_cache_path('system/cache')}/uncached/erb.html"
               get('/uncached/erb')
             end
             
@@ -395,7 +395,7 @@ describe "Sinatra" do
           describe "URLs with custom erb helpers, like :admin_erb().." do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/uncached/uncached_erb.html"
+              @cache_file = "#{test_cache_path('system/cache')}/uncached/uncached_erb.html"
               get('/uncached/uncached_erb')
             end
             
@@ -415,7 +415,7 @@ describe "Sinatra" do
             describe "the URL ['/css/screen.css' => /css/screen.css]" do 
               
               before(:each) do 
-                @cache_file = "#{public_fixtures_path}/system/cache/css/screen.css"
+                @cache_file = "#{test_cache_path('system/cache')}/css/screen.css"
                 FileUtils.remove_dir(File.dirname(@cache_file), :force => true )
                 get('/css/screen.css')
               end
@@ -442,7 +442,7 @@ describe "Sinatra" do
             describe "URLs with ':cache => false' - ['/css/no/cache.css' => /css/no/cache.css]" do 
               
               before(:each) do 
-                @cache_file = "#{public_fixtures_path}/system/cache/css/no/cache.css"
+                @cache_file = "#{test_cache_path('system/cache')}/css/no/cache.css"
                 get('/css/no/cache.css')
               end
               
@@ -466,7 +466,7 @@ describe "Sinatra" do
           describe "POST '/post'" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/post.html"
+              @cache_file = "#{test_cache_path('system/cache')}/post.html"
               post('/post', :test => {:name => "test-#{Time.now.strftime("%Y-%d-%m %H:%M:%S")}", :content => "with content" })
             end
             
@@ -483,7 +483,7 @@ describe "Sinatra" do
           describe "PUT '/put'" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/put.html"
+              @cache_file = "#{test_cache_path('system/cache')}/put.html"
               put('/put', { :test => { :name => "test" }, :_method => "put" })
             end
             
@@ -500,7 +500,7 @@ describe "Sinatra" do
           describe "DELETE '/delete'" do 
             
             before(:each) do 
-              @cache_file = "#{public_fixtures_path}/system/cache/delete.html"
+              @cache_file = "#{test_cache_path('system/cache')}/delete.html"
               delete('/delete') #, { :test => { :name => "test" }, :_method => "put" })
             end
             
@@ -523,7 +523,7 @@ describe "Sinatra" do
         describe "using NOT shared fragments" do 
           
           after(:all) do
-            FileUtils.rm_r("#{public_fixtures_path}/system/cache_fragments/fragments") if @delete_cached_test_files
+            FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/fragments") if @delete_cached_test_files
           end
           
           %w(
@@ -549,7 +549,7 @@ describe "Sinatra" do
               
               # the cached fragment has already been found if we get this far, 
               # but just for good measure do we check for the existence of the fragment file.
-              test(?f, "#{public_fixtures_path}/system/cache_fragments/#{dir_structure}/test_fragment.html").should == true
+              test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
             end
           end
           
@@ -558,7 +558,7 @@ describe "Sinatra" do
         describe "using shared fragments" do 
           
           after(:all) do
-            FileUtils.rm_r("#{public_fixtures_path}/system/cache_fragments/sharedfragments") if @delete_cached_test_files
+            FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/sharedfragments") if @delete_cached_test_files
           end
           
           describe "when requesting the first URL" do 
@@ -585,7 +585,7 @@ describe "Sinatra" do
               
               # the cached fragment has already been found if we get this far, 
               # but just for good measure do we check for the existence of the fragment file.
-              test(?f, "#{public_fixtures_path}/system/cache_fragments/#{dir_structure}/test_fragment.html").should == true
+              test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
               
               # should use the cached fragment rather than cache a new fragment
               url = '/sharedfragments/2010/02/another-article-02'
@@ -607,23 +607,23 @@ describe "Sinatra" do
           
           it "should expire the page ['/params/cache/expire/' => ../cache/params/cache/expire/index.html]" do 
             get('/params/cache/expire/')
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache/expire/index.html" ).should == true
+            test(?f,"#{test_cache_path('system/cache')}/params/cache/expire/index.html" ).should == true
             lambda { 
               erb_app "<% cache_expire('/params/cache/expire/') %>"
             }.should_not raise_error(Exception)
             
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache/expire/index.html" ).should == false
+            test(?f,"#{test_cache_path('system/cache')}/params/cache/expire/index.html" ).should == false
             
           end
           
           it "should expire the page ['/params/cache/expired' => ../cache/params/cache/expired.html]" do 
             get('/params/cache/expired')
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache/expired.html" ).should == true
+            test(?f,"#{test_cache_path('system/cache')}/params/cache/expired.html" ).should == true
             lambda { 
               erb_app "<% cache_expire('/params/cache/expired') %>"
             }.should_not raise_error(Exception)
             
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache/expired.html" ).should == false
+            test(?f,"#{test_cache_path('system/cache')}/params/cache/expired.html" ).should == false
             
           end
           
@@ -633,20 +633,20 @@ describe "Sinatra" do
           
           it "should expire the fragment ['/fragments/cache/expire/' => ../cache_fragments/fragments/cache/expire/test_fragment.html]" do 
             get('/fragments/cache/expire/')
-            test(?f,"#{public_fixtures_path}/system/cache_fragments/fragments/cache/expire/test_fragment.html" ).should == true
+            test(?f,"#{test_cache_path('system/cache')}_fragments/fragments/cache/expire/test_fragment.html" ).should == true
             lambda { 
               erb_app "<% cache_expire('/fragments/cache/expire/',:fragment => :test_fragment) %>"
             }.should_not raise_error(Exception)
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache_fragments/expire/test_fragment.html" ).should == false
+            test(?f,"#{test_cache_path('system/cache')}/params/cache_fragments/expire/test_fragment.html" ).should == false
           end
           
           it "should expire the fragment ['/fragments/cache/expired' => ../cache_fragments/fragments/cache/expired/test_fragment.html]" do 
             get('/fragments/cache/expired')
-            test(?f,"#{public_fixtures_path}/system/cache_fragments/fragments/cache/expired/test_fragment.html" ).should == true
+            test(?f,"#{test_cache_path('system/cache')}_fragments/fragments/cache/expired/test_fragment.html" ).should == true
             lambda { 
               erb_app "<% cache_expire('/fragments/cache/expired',:fragment => :test_fragment) %>"
             }.should_not raise_error(Exception)
-            test(?f,"#{public_fixtures_path}/system/cache/params/cache_fragments/expired/test_fragment.html" ).should == false
+            test(?f,"#{test_cache_path('system/cache')}/params/cache_fragments/expired/test_fragment.html" ).should == false
           end
           
         end #/ Pages

@@ -44,6 +44,10 @@ def public_fixtures_path
   "#{fixtures_path}/public"
 end
 
+def test_cache_path(ext='')
+  "/tmp/sinatra-cache/#{ext}"
+end
+
 class MyTestApp < Sinatra::Base 
   
   set :app_dir, "#{APP_ROOT}/apps/base"
