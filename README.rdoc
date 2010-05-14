@@ -69,6 +69,22 @@ the extension in your sub-classed Sinatra app:
     
   end
   
+  
+In your "classic" Sinatra app, you just require the extension and set some key settings, like this:
+
+  require 'rubygems'
+  require 'sinatra'
+  require 'sinatra/cache'
+  
+  # NB! you need to set the root of the app first
+  set :root, '/path/2/the/root/of/your/app'
+  set :public, '/path/2/public'
+  
+  set :cache_enabled, true  # turn it on
+  
+  <snip...>
+  
+
 
 That's more or less it. 
 
