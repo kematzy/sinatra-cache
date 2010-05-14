@@ -1,5 +1,4 @@
 
-require 'sinatra/base'
 require 'sinatra/outputbuffer'
 
 module Sinatra
