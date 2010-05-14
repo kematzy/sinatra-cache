@@ -662,6 +662,6 @@ module Sinatra
     
   end #/ Cache
   
-  # register(Sinatra::Cache) # not really needed here
+  register(Sinatra::Cache) # support classic apps
   
 end #/ Sinatra
