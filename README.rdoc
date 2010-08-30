@@ -374,6 +374,17 @@ Report it here: http://github.com/kematzy/sinatra-cache/issues
 
 * Work out and include instructions on how to use a '../public/custom/cache/dir' with Passenger.
 
+* Enable time-based / date-based cache expiry and regeneration of the cached-pages. [ht oakleafs]
+
+* Enable .gz version of the cached file, further reducing the processing on the server. [ht oakleafs]
+  It would be killer to have <b>an extra .gz file next to the cached file</b>. That way, in Apache, you set it up like that:
+    
+      RewriteCond %{HTTP:Accept-Encoding} gzip
+      RewriteCond %{REQUEST_FILENAME}.gz$ -f
+      RewriteRule ^(.*)$ $1.gz [L,QSA]
+  
+  And it should serve the compressed file if available.
+
 * Write more tests to ensure everything is very solid.
 
 * Any other improvements you or I can think of.
