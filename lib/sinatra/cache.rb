@@ -3,7 +3,7 @@ require 'sinatra/outputbuffer'
 
 module Sinatra
   module Cache
-    VERSION = '0.3.5' unless const_defined?(:VERSION)
+    VERSION = '0.3.6' unless const_defined?(:VERSION)
     def self.version; "Sinatra::Cache v#{VERSION}"; end
   end #/ Cache
 end #/ Sinatra
