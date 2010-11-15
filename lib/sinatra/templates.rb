@@ -15,12 +15,15 @@ module Sinatra
       def render(engine, data, options={}, locals={}, &block) 
         # merge app-level options
         options = settings.send(engine).merge(options) if settings.respond_to?(engine)
+        options[:outvar] ||= '@_out_buf'
         
         # extract generic options
-        locals = options.delete(:locals) || locals || {}
-        views = options.delete(:views) || settings.views || "./views"
-        layout = options.delete(:layout)
-        layout = :layout if layout.nil? || layout == true
+        locals          = options.delete(:locals) || locals         || {}
+        views           = options.delete(:views)  || settings.views || "./views"
+        @default_layout = :layout if @default_layout.nil?
+        layout          = options.delete(:layout)
+        layout          = @default_layout if layout.nil? or layout == true
+        content_type    = options.delete(:content_type) || options.delete(:default_content_type)
         
         # set the cache related options
         cache_enabled = settings.respond_to?(:cache_enabled) ? settings.send(:cache_enabled) : false
@@ -30,8 +33,11 @@ module Sinatra
         cache_option = true if cache_option.nil?
         
         # compile and render template
-        template = compile_template(engine, data, options, views)
-        output = template.render(self, locals, &block)
+        layout_was      = @default_layout
+        @default_layout = false
+        template        = compile_template(engine, data, options, views)
+        output          = template.render(self, locals, &block)
+        @default_layout = layout_was
         
         # render layout
         if layout
@@ -48,6 +54,9 @@ module Sinatra
         # rendering without a layout
         (cache_enabled && cache_option && settings.send(:environment) == settings.cache_environment) ? 
             cache_write_file(cache_file_path, output.gsub(/\n\r?$/,"") ) : output
+            
+        output.extend(ContentTyped).content_type = content_type if content_type
+        output
       end
       
   end #/module Templates
