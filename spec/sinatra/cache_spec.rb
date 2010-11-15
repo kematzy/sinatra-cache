@@ -426,7 +426,7 @@ describe "Sinatra" do
               end
               
               it "should output the correct CSS as expected" do 
-                body.should == "body { color: red; }"
+                body.should == "body { color: red; }\n"
               end
               
               it "should automatically create the cache /css output directory" do 
@@ -655,6 +655,183 @@ describe "Sinatra" do
       
       
     end #/ with caching enabled
+    
+    describe "EDGE cases" do 
+      
+      describe "Using nested buffers" do 
+        
+        it "should use Sinatra v1.1" do
+          Sinatra::VERSION.should == '1.1.0'
+        end
+        
+        require 'sinatra/outputbuffer'
+        
+        class MyPartialsTestApp < Sinatra::Base 
+          register(Sinatra::Tests)
+          
+          enable :raise_errors
+          
+          register(Sinatra::OutputBuffer)
+          register(Sinatra::Cache)
+          
+          # need to set the root of the app for the default :cache_fragments_output_dir to work
+          set :root, ::APP_ROOT
+          set :app_dir, "#{APP_ROOT}/apps/partials"
+          set :public, "#{fixtures_path}/public"
+          set :views, "#{APP_ROOT}/apps/partials/views"
+
+          set :cache_enabled, true
+          set :cache_environment, :test
+          set :cache_output_dir, "#{test_cache_path('system/cache')}"
+          set :cache_fragments_output_dir, "#{test_cache_path('system/cache')}_fragments"
+
+          # NB! Although without tests, the positioning of the custom method in relation to other 
+          # Cache related declaration has no effect.
+          helpers do 
+            def uncached_erb(template, options={}) 
+              erb(template, options.merge(:cache => false ))
+            end
+            
+            ##
+            # Renders ERB partials 
+            #  
+            # ==== Examples
+            # 
+            #   <%= partial('shared/header') %>  => renders app/views/shared/_header.erb
+            # 
+            #   <%= partial('snippets/snippet') %>  => renders app/views/snippets/_snippet.erb
+            # 
+            # 
+            # @api public
+            def partial(template, *args) 
+              template_array = template.to_s.split('/')
+              template = template_array[0..-2].join('/') + "/_#{template_array[-1]}"
+              options = args.last.is_a?(Hash) ? args.pop : {}
+              options.merge!(:layout => false, :cache => false) # add support for Sinatra::Cache
+              # options[:outvar] = '@_out_buf'
+              if collection = options.delete(:collection) then
+                collection.inject([]) do |buffer, member|
+                  buffer << erb(:"#{template}", options.merge(:layout => false, :locals => { template_array[-1].to_sym => member } ) )
+                end.join("\n")
+              else
+                erb(:"#{template}", options)
+              end
+            rescue Errno::ENOENT => e
+              out = "ERROR: The partial [views/#{template.to_s}] is missing."
+              out << " Please create it to remove this error. [ Exception: #{h e.inspect}]" if self.class.development? || self.class.test?
+              out
+            rescue Exception => e
+              if self.class.production?
+                #  TODO:: must store the error in the log somehow. 
+                "<!-- ERROR: rendering the partial [#{template.to_s}] -->" 
+              else
+                throw e
+              end
+            end
+            
+          end
+          
+          get('/') { erb(:"home/index") }
+          # get('/erb/?') { erb(:index, :layout => false) }
+          
+          # complex regex URL, matches
+          get %r{^/params/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?} do
+            @captures = params[:captures].nil? ? [] : params[:captures].compact
+            erb(:params)
+          end
+          get('/file-extensions.*') do 
+            @vars = { :framework => "Sinatra", :url => "www.sinatrarb.com" }
+            case params[:splat].first.to_sym
+            when :json
+              erb(@vars.to_json, :layout => false )
+            when :yaml
+              erb(@vars.to_yaml,:layout => false) 
+            else
+              # direct output, should NOT be Cached
+              @vars.inspect
+              # @vars.inspect
+            end
+          end
+          
+          ## NO CACHING 
+          get('/uncached/erb'){ erb(:index, :cache => false) }
+          get('/uncached/erb/no/layout'){ erb(:index, :cache => false, :layout => false ) }
+          get('/uncached/uncached_erb'){ uncached_erb(:index) }
+          
+          get '/css/screen.css' do 
+            content_type 'text/css'
+            sass(:css, :style => :compact)
+          end
+          get '/css/no/cache.css' do 
+            content_type 'text/css'
+            sass(:css, :style => :compact, :cache => false)
+          end
+          
+          # enable :method_override
+          post('/post/?') { erb("POST", :layout => false) }
+          put('/put/?') { erb('PUT', :layout => false) }
+          delete('/delete/?') { erb('DELETE', :layout => false) }
+          
+          get %r{^/fragments/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?} do
+            erb(:fragments, :layout => false, :cache => false) 
+          end
+          get %r{^/sharedfragments/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?} do
+            erb(:fragments_shared, :layout => false, :cache => false) 
+          end
+          
+        end
+        
+        def app; ::MyPartialsTestApp.new ; end
+        
+        describe "basic Page caching" do 
+          
+          describe "GET requests for" do 
+            
+            describe "the Home page - ['/' => /index.html] (with layout)" do 
+              
+              before(:each) do 
+                @cache_file = "#{test_cache_path('system/cache')}/index.html"
+                get('/')
+              end
+              
+              after(:each) do
+                FileUtils.rm(@cache_file) if @delete_cached_test_files
+              end
+              
+              it "should render the expected output" do 
+                # <html>
+                #   <head>
+                #     <title>Sinatra::Cache</title>
+                #     <!-- page cached: 2010-11-15 18:21:06 -->
+                #   </head>
+                #   <body>
+                #     <div id="header">
+                #       <h1>HELLO from [content_for(:section_header)]</h1>
+                #     </div>
+                #     <h2>HELLO FROM [FILE ../sinatra-cache/spec/fixtures/apps/partials/views/home/index.erb]</h2>
+                #   </body>
+                # </html>
+                body.should have_tag('html > head > title', 'Sinatra::Cache') 
+                body.should match(/<!-- page cached: \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d -->/)
+                body.should have_tag('html > body > div#header > h1', /HELLO from \[content_for\(:section_header\)\]/)
+                body.should have_tag('html > body > h2', /HELLO FROM \[/)
+              end
+              
+              it "should create a cached file in the cache output directory" do 
+                test(?f, @cache_file).should == true
+              end
+              
+            end #/ GET ['/' => /index.html]
+            
+          end #/ GET requests
+          
+        end #/ basic Page caching
+        
+        
+      end #/ Using nested buffers
+      
+    end #/ EDGE cases
+    
     
   end #/ Cache
   
