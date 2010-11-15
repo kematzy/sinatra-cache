@@ -660,10 +660,6 @@ describe "Sinatra" do
       
       describe "Using nested buffers" do 
         
-        it "should use Sinatra v1.1" do
-          Sinatra::VERSION.should == '1.1.0'
-        end
-        
         require 'sinatra/outputbuffer'
         
         class MyPartialsTestApp < Sinatra::Base 
