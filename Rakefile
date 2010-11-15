@@ -10,7 +10,7 @@ begin
     gem.email = "kematzy@gmail.com"
     gem.homepage = "http://github.com/kematzy/sinatra-cache"
     gem.authors = ["kematzy"]
-    gem.add_dependency('sinatra', '>=1.0')
+    gem.add_dependency('sinatra', '>=1.1.0')
     gem.add_dependency('sinatra-outputbuffer', '>=0.1.0')
     gem.add_development_dependency "sinatra-tests", ">= 0.1.6"
     gem.add_development_dependency "rspec", ">= 1.3.0"
