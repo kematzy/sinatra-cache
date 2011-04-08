@@ -23,6 +23,7 @@ describe "Sinatra" do
       set :cache_environment, :test
       set :cache_output_dir, "#{test_cache_path('system/cache')}"
       set :cache_fragments_output_dir, "#{test_cache_path('system/cache')}_fragments"
+      set :cache_fragments_wrap_with_html_comments, false
       
       # NB! Although without tests, the positioning of the custom method in relation to other 
       # Cache related declaration has no effect.
@@ -140,6 +141,10 @@ describe "Sinatra" do
           MyDefaultsTestApp.cache_logging_level.should == :info
         end
         
+        it "should set :cache_fragments_wrap_with_html_comments to true" do 
+          MyDefaultsTestApp.cache_fragments_wrap_with_html_comments.should == true
+        end
+        
       end #/ with Default Settings
       
       describe "with Custom Settings" do 
@@ -170,6 +175,10 @@ describe "Sinatra" do
         
         it "should set :cache_logging_level to :info" do 
           MyTestApp.cache_logging_level.should == :info
+        end
+        
+        it "should set :cache_fragments_wrap_with_html_comments to false" do 
+          MyTestApp.cache_fragments_wrap_with_html_comments.should == false
         end
         
       end #/ Custom
@@ -520,84 +529,208 @@ describe "Sinatra" do
       
       describe "and Fragment caching" do 
         
-        describe "using NOT shared fragments" do 
+        describe "with default settings" do 
           
-          after(:all) do
-            FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/fragments") if @delete_cached_test_files
-          end
+          def app; ::MyTestApp.new ; end
           
-          %w(
-            /fragments /fragments/a/b/ /fragments/with/param/?page=1 
-            /fragments/dasherised-urls/works-as-well
-          ).each do |url|
+          describe "using NOT shared fragments" do 
             
-            params_free_url = url =~ /\?/ ? url.split('?').first.chomp('?') : url
-            dir_structure = params_free_url.gsub(/^\//,'').gsub(/\/$/,'')
-            
-            it "should cache the fragments from the URL [#{url}] as [#{dir_structure}/test_fragment.html]" do
-              get(url)
-              # body.should have_tag(:debug)
-              body.should have_tag('h1','FRAGMENTS', :count => 1)
-              body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
-              body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
-              
-              # render the page a 2nd time from cache
-              get(url)
-              body.should have_tag('h1','FRAGMENTS', :count => 1)
-              body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
-              body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
-              
-              # the cached fragment has already been found if we get this far, 
-              # but just for good measure do we check for the existence of the fragment file.
-              test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
+            after(:all) do
+              FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/fragments") if @delete_cached_test_files
             end
-          end
-          
-        end #/ using NOT shared fragments
-        
-        describe "using shared fragments" do 
-          
-          after(:all) do
-            FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/sharedfragments") if @delete_cached_test_files
-          end
-          
-          describe "when requesting the first URL" do 
             
-            #  FIXME:: work out some clever way to split all of these tests into single items instead of in one big blob
-             
-            it "should cache the fragment based on the URL and use it on subsequent requests by URLs sharing the same root URL" do
-              url = '/sharedfragments/2010/02/some-article-01'
+            %w(
+              /fragments /fragments/a/b/ /fragments/with/param/?page=1 
+              /fragments/dasherised-urls/works-as-well
+            ).each do |url|
+              
               params_free_url = url =~ /\?/ ? url.split('?').first.chomp('?') : url
               dir_structure = params_free_url.gsub(/^\//,'').gsub(/\/$/,'')
-              dirs = dir_structure.split('/')
-              dir_structure = dirs.first(dirs.length-1).join('/')
               
-              get(url)
-              # body.should have_tag(:debug)
-              body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
-              body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
-              body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
-              
-              get(url)
-              body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
-              body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
-              body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
-              
-              # the cached fragment has already been found if we get this far, 
-              # but just for good measure do we check for the existence of the fragment file.
-              test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
-              
-              # should use the cached fragment rather than cache a new fragment
-              url = '/sharedfragments/2010/02/another-article-02'
-              get(url)
-              body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
-              body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
-              body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+              it "should cache the fragments from the URL [#{url}] as [#{dir_structure}/test_fragment.html]" do
+                get(url)
+                # body.should have_tag(:debug)
+                body.should have_tag('h1','FRAGMENTS', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # render the page a 2nd time from cache
+                get(url)
+                body.should have_tag('h1','FRAGMENTS', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # the cached fragment has already been found if we get this far, 
+                # but just for good measure do we check for the existence of the fragment file.
+                test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
+              end
             end
             
-          end #/ when requesting the first URL
+          end #/ using NOT shared fragments
           
-        end #/ using shared fragments
+          describe "using shared fragments" do 
+            
+            after(:all) do
+              FileUtils.rm_r("#{test_cache_path('system/cache')}_fragments/sharedfragments") if @delete_cached_test_files
+            end
+            
+            describe "when requesting the first URL" do 
+              
+              #  FIXME:: work out some clever way to split all of these tests into single items instead of in one big blob
+              
+              it "should cache the fragment based on the URL and use it on subsequent requests by URLs sharing the same root URL" do
+                url = '/sharedfragments/2010/02/some-article-01'
+                params_free_url = url =~ /\?/ ? url.split('?').first.chomp('?') : url
+                dir_structure = params_free_url.gsub(/^\//,'').gsub(/\/$/,'')
+                dirs = dir_structure.split('/')
+                dir_structure = dirs.first(dirs.length-1).join('/')
+                
+                get(url)
+                # body.should have_tag(:debug)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                get(url)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # the cached fragment has already been found if we get this far, 
+                # but just for good measure do we check for the existence of the fragment file.
+                test(?f, "#{test_cache_path('system/cache')}_fragments/#{dir_structure}/test_fragment.html").should == true
+                
+                # should use the cached fragment rather than cache a new fragment
+                url = '/sharedfragments/2010/02/another-article-02'
+                get(url)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+              end
+              
+            end #/ when requesting the first URL
+            
+          end #/ using shared fragments
+          
+        end #/ with default settings
+        
+        describe "with :cache_fragments_wrap_with_html_comments enabled" do 
+          
+          class MyWrapTestApp < Sinatra::Base 
+            
+            set :app_dir, "#{APP_ROOT}/apps/base"
+            set :public, "#{fixtures_path}/public"
+            set :views, "#{app_dir}/views"
+            
+            register(Sinatra::Tests)
+            
+            enable :raise_errors
+            
+            register(Sinatra::Cache)
+            
+            # need to set the root of the app for the default :cache_fragments_output_dir to work
+            set :root, ::APP_ROOT
+            
+            set :cache_enabled, true
+            set :cache_environment, :test
+            set :cache_output_dir, "#{test_cache_path('system/cache')}"
+            set :cache_fragments_output_dir, "#{test_cache_path('system/cache')}_wrap_fragments"
+            set :cache_fragments_wrap_with_html_comments, true
+            
+            get('/') { erb(:index) }
+            
+            get %r{^/fragments/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?} do
+              erb(:fragments, :layout => false, :cache => false) 
+            end
+            get %r{^/sharedfragments/?([\s\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?/?([\w-]+)?} do
+              erb(:fragments_shared, :layout => false, :cache => false) 
+            end
+            
+          end
+          
+          def app; ::MyWrapTestApp.new ; end
+          
+          describe "using NOT shared fragments" do 
+            
+            after(:all) do
+              FileUtils.rm_r("#{test_cache_path('system/cache')}_wrap_fragments/fragments") if @delete_cached_test_files
+            end
+            
+            %w(
+              /fragments /fragments/a/b/ /fragments/with/param/?page=1 
+              /fragments/dasherised-urls/works-as-well
+            ).each do |url|
+              
+              params_free_url = url =~ /\?/ ? url.split('?').first.chomp('?') : url
+              dir_structure = params_free_url.gsub(/^\//,'').gsub(/\/$/,'')
+              
+              it "should cache the fragments from the URL [#{url}] as [#{dir_structure}/test_fragment.html]" do
+                get(url)
+                # body.should have_tag(:debug)
+                body.should have_tag('h1','FRAGMENTS', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # render the page a 2nd time from cache
+                get(url)
+                body.should have_tag('h1','FRAGMENTS', :count => 1)
+                body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # the cached fragment has already been found if we get this far, 
+                # but just for good measure do we check for the existence of the fragment file.
+                test(?f, "#{test_cache_path('system/cache')}_wrap_fragments/#{dir_structure}/test_fragment.html").should == true
+              end
+            end
+            
+          end #/ using NOT shared fragments
+          
+          describe "using shared fragments" do 
+            
+            after(:all) do
+              FileUtils.rm_r("#{test_cache_path('system/cache')}_wrap_fragments/sharedfragments") if @delete_cached_test_files
+            end
+            
+            describe "when requesting the first URL" do 
+              
+              #  FIXME:: work out some clever way to split all of these tests into single items instead of in one big blob
+              
+              it "should cache the fragment based on the URL and use it on subsequent requests by URLs sharing the same root URL" do
+                url = '/sharedfragments/2010/02/some-article-01'
+                params_free_url = url =~ /\?/ ? url.split('?').first.chomp('?') : url
+                dir_structure = params_free_url.gsub(/^\//,'').gsub(/\/$/,'')
+                dirs = dir_structure.split('/')
+                dir_structure = dirs.first(dirs.length-1).join('/')
+                
+                get(url)
+                # body.should have_tag(:debug)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should_not match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should_not match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                get(url)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+                
+                # the cached fragment has already been found if we get this far, 
+                # but just for good measure do we check for the existence of the fragment file.
+                test(?f, "#{test_cache_path('system/cache')}_wrap_fragments/#{dir_structure}/test_fragment.html").should == true
+                
+                # should use the cached fragment rather than cache a new fragment
+                url = '/sharedfragments/2010/02/another-article-02'
+                get(url)
+                body.should have_tag('h1','FRAGMENTS - SHARED', :count => 1)
+                body.should match(/<!-- cache fragment:(.+)test_fragment -->/)
+                body.should match(/<!-- \/cache fragment: test_fragment cached at \[ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\] -->/)
+              end
+              
+            end #/ when requesting the first URL
+            
+          end #/ using shared fragments
+          
+        end #/ with customs settings
+        
         
       end #/ and Fragment caching
       

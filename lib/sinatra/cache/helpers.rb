@@ -416,7 +416,7 @@ module Sinatra
             content_2_cache << block_content
             content_2_cache << "<!-- /cache fragment: #{fragment_name} cached at [ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] -->\n"
           else
-            content_2_cache << block_content
+            content_2_cache = block_content
           end
           # 6. write it to cache
           cache_write_file(cf, content_2_cache)
