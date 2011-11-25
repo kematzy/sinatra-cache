@@ -580,7 +580,7 @@ module Sinatra
           # test if given a full path rather than relative path, otherwise join the public path to cache_dir 
           # and ensure it is a full path
           cache_dir = (settings.cache_output_dir == File.expand_path(settings.cache_output_dir)) ? 
-              settings.cache_output_dir : File.expand_path("#{settings.public}/#{settings.cache_output_dir}")
+              settings.cache_output_dir : File.expand_path("#{settings.public_folder}/#{settings.cache_output_dir}")
           cache_dir = cache_output_dir[0..-2] if cache_dir[-1,1] == '/'
           "#{cache_dir}/#{cache_file_name(path, options)}"
         end
@@ -640,7 +640,7 @@ module Sinatra
       app.set :cache_enabled, false
       app.set :cache_environment, :production
       app.set :cache_page_extension, '.html'
-      app.set :cache_output_dir, lambda { app.public }
+      app.set :cache_output_dir, lambda { app.public_folder }
       app.set :cache_fragments_output_dir, lambda { "#{app.root}/tmp/cache_fragments" }
       app.set :cache_fragments_wrap_with_html_comments, true
       
