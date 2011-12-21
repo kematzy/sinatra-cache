@@ -16,6 +16,7 @@ module Sinatra
         # merge app-level options
         options = settings.send(engine).merge(options) if settings.respond_to?(engine)
         options[:outvar] ||= '@_out_buf'
+        options[:default_encoding] ||= settings.default_encoding
         
         # extract generic options
         locals          = options.delete(:locals) || locals         || {}
